@@ -4,7 +4,7 @@
 <script src="./sigma.min.js"></script>
 <script type="text/javascript">
 
-var testGame = "../output/game.two_random.json";
+var testGame = "../output/game.json";
 var turns, currentTurn;
 var sWrap;
 var mines;
@@ -13,6 +13,7 @@ var rivers = {};
 var colors = ["#00cc00", "#0000cc", "aaaa00", "aa00aa", "00aaaa"];
 
 function initGame(players) {
+    rivers = {};
     for (var i in players) {
         var row =
             $("<tr>")
@@ -70,6 +71,10 @@ function loadGraph(path) {
 }
 
 function loadGame(path) {
+    sWrap = new sigma("graph-container");
+    sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8, "minEdgeSize": 0.1, "maxEdgeSize": 5});
+    sWrap.cameras[0].goTo({ x: 0, y: 0, angle: 0, ratio: 2 });
+
     $.getJSON({
         url: path,
         success: function(game) {
@@ -85,8 +90,9 @@ function loadGame(path) {
 
             if (game.map) {
               sWrap.graph.read(mapToSigma(game.map));
-              sWrap.refresh();
             }
+
+            sWrap.refresh();
         }
     });
 }
@@ -117,7 +123,7 @@ function nextTurn() {
 
 $(function() {
     $(':button').on('click', function() {
-        loadGraph("maps/" + $("#file").val() + ".json");
+        loadGame("../output/" + $("#file").val() + ".json");
     });
 
     $("#back").click(prevTurn);
@@ -130,10 +136,6 @@ $(function() {
         }
     });
 
-    sWrap = new sigma("graph-container");
-    sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8, "minEdgeSize": 0.1, "maxEdgeSize": 5});
-    sWrap.cameras[0].goTo({ x: 0, y: 0, angle: 0, ratio: 2 });
-
     loadGame(testGame);
 });
 
@@ -144,7 +146,7 @@ $(function() {
 <body>
     <div id="load">
         <form enctype="multipart/form-data" method="post">
-            <input id="file" type="text" value="circle"/>
+            <input id="file" type="text" value="game"/>
             <input type="button" value="Load"/>
         </form>
     </div>
