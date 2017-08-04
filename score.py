@@ -17,9 +17,9 @@ def score_game(mines, rivers, players):
     seen, todo = set(), deque([(start, 0)])
     while todo:
       v, d = todo.popleft()
-      yield (v, d)
       if v not in seen:
         seen.add(v)
+        yield (v, d)
         try:
           for c in rivers_m[v]:
             if c not in seen:
