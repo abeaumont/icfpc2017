@@ -27,7 +27,7 @@ class Player():
             "moves": round,
             "score": 0
         }}))
-        
+
 
 class Game():
     def __init__(self, game_map, num_players):
@@ -56,7 +56,7 @@ class Game():
                 game_thread.start()
 
             return player
-        
+
     def start(self):
         print "SPINNING UP GAME SERVER!"
         game_map = self.map
@@ -71,14 +71,16 @@ class Game():
         round = []
         for i in range(turns):
             player = self.players[i % players]
+            turn = {"pass": {"punter": player_turn}}
             try:
                 turn = player.get_move(round)
-                round.append(turn)
-                self.all_turns.append(turn)
             except Exception, e:
                 print "PLAYER", player.id, "HAD ERROR. PASSING TURN", turn_num
                 print " ", e
-                round.append({"pass": {"punter": player_turn}})
+
+            round.append(turn)
+            self.all_turns.append(turn)
+
             if len(round) > players:
                 round.pop(0)
 
@@ -105,6 +107,7 @@ class Game():
 
         json_obj = {
             "turns" : self.all_turns,
+            "num_players" : len(self.players)
         }
         json_str = json.dumps(json_obj)
         with open(filename, "w") as f:
