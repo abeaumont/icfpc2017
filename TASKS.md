@@ -55,12 +55,12 @@ Day 2:
 * Make an optimal play at each step
 * Make a greedy algorithm that has tuneable co-efficients for optimizing
 
-### Edge Features (heuristics)
+### River Features (heuristics)
+* couldntPossiblyConnectToAMine/orphaned/unreachable -- able to detect rule out using BFS/DFS O(|V|+|E|)
 * wouldLink2Mines
 * isCutEdge
 * distanceFromMines
 * howLikelyWeAreToLinkMines - how to compute?
 * wouldLink
-* couldntPossibleConnectToAMine/orphaned/unreachable -- able to detect rule out using BFS/DFS
 
 O(3632) rivers in examples .'. each feature in O(V^2)
