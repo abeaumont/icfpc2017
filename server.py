@@ -2,10 +2,12 @@ import sys
 import threading
 import json
 
-
 import SocketServer
 GAME_PORT=9000
 
+import game
+
+GAME = None
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     def log_request(self, *args, **kwargs):
         pass
@@ -29,7 +31,13 @@ class GameHandler(SocketServer.StreamRequestHandler):
                 self.wfile.write(json.dumps(rsp))
 
                 print "PLAYER HANDSHAKE FINISHED", player_id
-        except:
+                GAME.add_player(player_id, self)
+            else:
+                print "INITIAL MSG DID NOT CONTAIN 'me' HANDSHAKE, EXITING REQUEST"
+                return
+
+        except Exception, e:
+            print e
             print "CLIENT DID NOT ESTABLISH HANDSHAKE PROPERLY, EXITING REQUEST"
             return
 
@@ -52,13 +60,10 @@ def serve_game(game_port, HandlerClass = GameHandler):
     global SERVER
     SocketServer.TCPServer.allow_reuse_address = True
     gamed = ThreadedTCPServer(("", game_port), HandlerClass)
-    debug("Serving Game on", game_port)
+    print("Serving Game on", game_port)
 
     SERVER = gamed
     SERVER.serve_forever()
-
-def debug(*args):
-    print(" ".join(map(str, args)))
 
 def start():
     port = int(GAME_PORT)
@@ -74,14 +79,17 @@ def start():
     return game_thread
 
 MAP="maps/lambda.json"
-PLAYERS=2
+PLAYERS=1
 def main():
+    global GAME
     with open(MAP, "r") as f:
         data = f.read()
 
-    json_data = json.loads(data)
+    json_map = json.loads(data)
     print "LOADING SERVER..."
     print "LOADING MAP", MAP
+    print "MAKING GAME"
+    GAME = game.Game(json_map, PLAYERS)
     print "EXPECTED PLAYERS", PLAYERS
 
     t = start()
