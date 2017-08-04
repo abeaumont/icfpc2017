@@ -34,8 +34,6 @@ class Game():
             print "ADDING PLAYER", player, player.id, player.name
 
 
-            # TODO: check if we should start the game and kick the game start
-            # off in another thread?
             if len(self.players) == self.num_players:
                 game_thread = threading.Thread(target=self.start)
                 game_thread.start()
@@ -57,10 +55,8 @@ class Game():
             prev_round[pid] = "na"
 
         this_round = {}
-        # TODO: initialize prev_round with "na" for all players
         while turn_num < num_turns:
             player = self.players[player_turn]
-            # TODO: implement player.get_move
             try:
                 this_round[player.id] = player.get_move(prev_round)
             except Exception, e:
