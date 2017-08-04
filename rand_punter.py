@@ -22,7 +22,9 @@ class RandPunter(interface.Punter):
 if __name__ == '__main__':
     import socket, sys
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('localhost', 9000))
-    #s.connect(('punter.inf.ed.ac.uk', int(sys.argv[1])))
+    if len(sys.argv) == 0:
+        s.connect(('localhost', 9000))
+    else:
+        s.connect(('punter.inf.ed.ac.uk', int(sys.argv[1])))
     iface = interface.Interface("Random", RandPunter, s.makefile())
     iface.run()
