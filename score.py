@@ -68,3 +68,15 @@ def connected_components(rivers_m):
       vs.discard(v)
     acc.append(res)
   return acc
+
+test_cases = [
+    ([1, 5],
+     [(0, 1), (0, 7), (1, 2), (1, 3), (1, 7), (2, 3), (3, 4), (3, 5), (4, 5),
+      (5, 6), (5, 7)],
+     [[(2, 1), (2, 3), (4, 3)], [(1, 7), (7, 5)]],
+     [6, 10])
+    ]
+
+def test_score_game():
+  for mines, rivers, players, answer in test_cases:
+    assert(score_game(mines, rivers, players) == answer)
