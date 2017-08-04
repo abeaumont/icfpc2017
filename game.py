@@ -11,15 +11,21 @@ class Player():
         self.request.wfile.write(json.dumps({"move": {"moves": prev_round}}) + '\n')
         return json.loads(self.request.rfile.readline())
 
-    def get_ready(self, punter, punters, game_map):
+    def get_ready(self, punters, game_map):
         print "Player setup", self.id
         self.request.wfile.write(json.dumps({
-            'punter': punter,
+            'punter': self.id,
             'punters': punters,
             'map': game_map}) + '\n')
         line = self.request.rfile.readline()
         print line
         return json.loads(line)
+
+    def stop(self, round):
+        self.request.wfile.write(json.dumps({"stop": {
+            "moves": round,
+            "score": 0
+        }}))
         
 
 class Game():
@@ -53,12 +59,11 @@ class Game():
     def start(self):
         print "SPINNING UP GAME SERVER!"
         game_map = self.map
-        for pid in self.players:
-            self.players[pid].get_ready(pid, len(self.players), game_map)
-        turns = len(game_map["rivers"])
         players = len(self.players)
+        for player in self.players.values():
+            player.get_ready(players, game_map)
+        turns = len(game_map["rivers"])
 
-        moves = []
         player_turn = 0
         round = []
         for i in range(turns):
@@ -73,10 +78,14 @@ class Game():
                 round.pop(0)
 
             # end of turn book keeping
-            player_turn += 1 
+            player_turn += 1
+        for i in range(players):
+            round.append(player.stop(round))
+            round.pop(0)
 
         print "ENDING GAME!"
         for player in self.players.values():
             player.request.running = False
 
         # TODO: evaluate the actual game
+        self.players = {}
