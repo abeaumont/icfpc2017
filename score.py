@@ -1,3 +1,4 @@
+from collections import deque
 
 def score_game(mines, rivers, players):
   ''' mines: iterable of integer mines, in any order: [2, 5, 20]
@@ -9,8 +10,32 @@ def score_game(mines, rivers, players):
       result: iterable of integer scores for each player, in the same order
               as the 'players' iterable.
   '''
-  # TODO: implement
-  return [0 for _ in players]
+  rivers_m = to_assoc_list(rivers)
+  acc = [0 for _ in players]
+  player_comps = [connected_components(to_assoc_list(x)) for x in players]
+  def bfs(start):
+    seen, todo = set(), deque([(start, 0)])
+    while todo:
+      v, d = todo.popleft()
+      yield (v, d)
+      if v not in seen:
+        seen.add(v)
+        try:
+          for c in rivers_m[v]:
+            if c not in seen:
+              todo.append((c, d+1))
+        except KeyError:
+          pass
+  for m in mines:
+    ps = [filter(lambda comp: m in comp, x) for x in player_comps]
+    for v, d in bfs(m):
+      for i, p in enumerate(ps):
+        try:
+          if v in p[0]:
+            acc[i] += d**2
+        except IndexError:
+          pass
+  return acc
 
 def to_assoc_list(rivers):
   res = {}
