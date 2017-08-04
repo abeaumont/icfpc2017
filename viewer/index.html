@@ -71,6 +71,7 @@ function loadGraph(path) {
 }
 
 function loadGame(path) {
+    $("#graph-container").empty();
     sWrap = new sigma("graph-container");
     sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8, "minEdgeSize": 0.1, "maxEdgeSize": 5});
     sWrap.cameras[0].goTo({ x: 0, y: 0, angle: 0, ratio: 2 });
