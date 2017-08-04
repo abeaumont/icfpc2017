@@ -9,24 +9,22 @@ class Player():
 
     def get_move(self, prev_round):
         print "PROMPTING PLAYER FOR MOVE", self.id, "PREV ROUND:", prev_round
-        self.request.wfile.write(json.dumps({"move": {"moves": prev_round}}) + '\n')
-        return json.loads(self.request.rfile.readline())
+        self.request._send({"move": {"moves": prev_round}})
+        return self.request._recv()
 
     def get_ready(self, punters, game_map):
         print "Player setup", self.id
-        self.request.wfile.write(json.dumps({
+        self.request._send({
             'punter': self.id,
             'punters': punters,
-            'map': game_map}) + '\n')
-        line = self.request.rfile.readline()
-        print line
-        return json.loads(line)
+            'map': game_map})
+        return self.request._recv()
 
     def stop(self, round):
-        self.request.wfile.write(json.dumps({"stop": {
+        self.request._send({"stop": {
             "moves": round,
             "score": 0
-        }}))
+        }})
 
 
 class Game():
@@ -46,7 +44,7 @@ class Game():
             player = Player()
             player.name = player_name
             player.id = pid
-            player.request= player_request
+            player.request = player_request
             self.players[pid] = player
             print "ADDING PLAYER", player, player.id, player.name
 

@@ -14,6 +14,18 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         pass
 
 class GameHandler(SocketServer.StreamRequestHandler):
+    def _recv(self):
+        msg = self.request.recv(10**9)
+        print '<<<', msg
+        return json.loads(msg.split(':', 1)[1])
+
+    def _send(self, msg):
+        msg = json.dumps(msg)
+        msg = '{}:{}'.format(len(msg), msg)
+        print '>>>', msg
+        self.wfile.write(msg + '\n')
+        self.wfile.flush()
+
     def handle(self):
         print "RECEIVED NEW CLIENT"
 
@@ -21,16 +33,12 @@ class GameHandler(SocketServer.StreamRequestHandler):
         # the first thing every client does is identify
 
         try:
-            client_id = json.loads(self.rfile.readline())
+            client_id = self._recv()
             print "CLIENT ID RECEIVED", client_id
-
 
             if "me" in client_id:
                 player_id = client_id["me"]
-                rsp = { "you" : player_id }
-
-                self.wfile.write(json.dumps(rsp) + "\n")
-
+                self._send({ "you" : player_id })
                 print "PLAYER HANDSHAKE FINISHED", player_id
                 GAME.add_player(player_id, self)
             else:
