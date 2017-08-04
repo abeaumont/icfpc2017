@@ -4,9 +4,9 @@
 * [x] implement online game server
 * [x] add skeleton for online client
 * [x] add random online client
-* [ ] add scoring to game server
+* [ ] add scoring to game server [kadoban]
 * [x] add visualizer for game states (from the server view)
-* [ ] polish visualizer
+* [ ] polish visualizer [okay]
 * [x] save game state to file
 * [x] save client game state to file
 * [ ] add skeleton for offline client
@@ -15,6 +15,8 @@
 * [ ] brainstorm strategies
 * [ ] understand the limitations of what we can store in game state
 * [x] understand if all pairs shortest path is feasible (it's not)
+* [ ] implement MST based strategy
+* [ ] implement client strategy [yuuri]
 
 
 ## GOALS:
