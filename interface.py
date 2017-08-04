@@ -38,8 +38,10 @@ class Interface(object):
         self.server = server
 
     def _send(self, msg):
+        msg = json.dumps(msg)
+        msg = '{}:{}'.format(len(msg), msg)
         print('sending message: ', msg)
-        self.server.write(json.dumps(msg) + '\n')
+        self.server.write(msg)
         self.server.flush()
 
     def _recv(self):
@@ -47,7 +49,7 @@ class Interface(object):
         print('receiving message: ', line)
         if not line:
             raise EOFError()
-        return json.loads(line)
+        return json.loads(line.split(':', 1)[1])
         
     def run(self):
         self._send({'me': self.name})
