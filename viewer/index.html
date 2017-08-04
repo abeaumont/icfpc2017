@@ -24,7 +24,7 @@ function loadGraph(path) {
         url: path,
         success: function(response) {
             sWrap.graph.clear();
-            sWrap.graph.read(mapToSigma(JSON.parse(response)));
+            sWrap.graph.read(mapToSigma(response));
             sWrap.refresh();
         }
     });
