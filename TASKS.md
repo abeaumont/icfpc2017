@@ -1,15 +1,15 @@
 ## TODO:
 
-[x] download maps from http://punter.inf.ed.ac.uk/maps/
-[-] implement online game server 
-[ ] add scoring to game server
-[ ] add skeleton for online client
-[ ] add skeleton for offline client
-[ ] make game server robust
-[ ] add random online client
-[ ] add greedy online client
-[ ] brainstorm strategies
-[ ] understand the limitations of what we can store in game state
+* [x] download maps from http://punter.inf.ed.ac.uk/maps/
+* [-] implement online game server 
+* [ ] add scoring to game server
+* [ ] add skeleton for online client
+* [ ] add skeleton for offline client
+* [ ] make game server robust
+* [ ] add random online client
+* [ ] add greedy online client
+* [ ] brainstorm strategies
+* [ ] understand the limitations of what we can store in game state
 
 
 ## GOALS:
@@ -23,6 +23,7 @@ Day 1:
  * try out a random client in the online mode on their server
 
 Day 2:
+
   * add tournaments for running against multiple AI
   * add some statistics / historical logging, so we can get an idea of an AI's ability
   * convert to offline mode
