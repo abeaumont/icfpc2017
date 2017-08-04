@@ -14,18 +14,17 @@ def score_game(mines, rivers, players):
   acc = [0 for _ in players]
   player_comps = [connected_components(to_assoc_list(x)) for x in players]
   def bfs(start):
-    seen, todo = set(), deque([(start, 0)])
+    seen, todo = set([start]), deque([(start, 0)])
     while todo:
       v, d = todo.popleft()
-      if v not in seen:
-        seen.add(v)
-        yield (v, d)
-        try:
-          for c in rivers_m[v]:
-            if c not in seen:
-              todo.append((c, d+1))
-        except KeyError:
-          pass
+      yield (v, d)
+      try:
+        for c in rivers_m[v]:
+          if c not in seen:
+            todo.append((c, d+1))
+            seen.add(c)
+      except KeyError:
+        pass
   for m in mines:
     ps = [filter(lambda comp: m in comp, x) for x in player_comps]
     for v, d in bfs(m):
