@@ -10,6 +10,7 @@
 * [ ] add greedy online client
 * [ ] brainstorm strategies
 * [ ] understand the limitations of what we can store in game state
+* [ ] add visualizer for game states (from the server view)
 
 
 ## GOALS:
