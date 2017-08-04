@@ -56,6 +56,6 @@ Day 2:
 * wouldLink2Mines
 * isCutEdge
 * distanceFromMines
-* howLikelyWeAreToLink - how to compute?
+* howLikelyWeAreToLinkMines - how to compute?
 
 O(3632) rivers in examples .'. each feature in O(V^2)
