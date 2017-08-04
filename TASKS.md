@@ -38,8 +38,7 @@ Day 2:
 * Brute-force solver for testing on small. Make it usable near the end of games
   as well.
 * MCTS
-* RL by self-play
-* policy function (move evaluation) using up to about 50 features, optimize the weights
+* policy function (move evaluation) using up to about 50 features, optimize weights by self-play
 * Greedy rules based on how valuable each river is. Probably doomed unless we
   come up with clever rules.
 * tit for tat: try a symmetric strategy (nim-like)
