@@ -1,21 +1,23 @@
 ## TODO:
 
 * [x] download maps from http://punter.inf.ed.ac.uk/maps/
-* [-] implement online game server 
-* [ ] add scoring to game server
-* [ ] add skeleton for online client
+* [x] implement online game server
+* [x] add skeleton for online client
+* [x] add random online client
+* [+] add scoring to game server
+* [+] add visualizer for game states (from the server view)
+* [ ] save game state to file
 * [ ] add skeleton for offline client
 * [ ] make game server robust
-* [ ] add random online client
 * [ ] add greedy online client
 * [ ] brainstorm strategies
 * [ ] understand the limitations of what we can store in game state
-* [ ] add visualizer for game states (from the server view)
+* [x] understand if all pairs shortest path is feasible (it's not)
 
 
 ## GOALS:
 
-Day 1: 
+Day 1:
 
  * implement online server and clients
  * add game scoring to online server
@@ -39,3 +41,10 @@ Day 2:
 * Greedy rules based on how valuable each river is. Probably doomed unless we
   come up with clever rules.
 * tit for tat: try a symmetric strategy (nim-like)
+* should we limit the opponent's opportunities as much as possible?
+
+### Greedy Ideas
+
+* Do a BFS from each mine, labeling each node as its squared distance from the mine. Then during gameplay, we try to obtain the highest value nodes
+* Make an optimal play at each step
+* Make a greedy algorithm that has tuneable co-efficients for optimizing
