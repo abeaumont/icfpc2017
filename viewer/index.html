@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
-<script src="viewer/jquery-3.2.1.min.js"></script>
-<script src="viewer/sigma.min.js"></script>
+<script src="./jquery-3.2.1.min.js"></script>
+<script src="./sigma.min.js"></script>
 <script type="text/javascript">
 
-var testMap = "maps/lambda.json";
-var testGame = "output/game.two_random.json";
+var testMap = "../maps/lambda.json";
+var testGame = "../output/game.two_random.json";
 var turns, currentTurn;
 var sWrap;
 var rivers = {};
@@ -48,21 +48,20 @@ function mapToSigma(obj) {
 }
 
 function loadGraph(path) {
-    $.ajax({
+    $.getJSON({
         url: path,
         success: function(response) {
             sWrap.graph.clear();
-            sWrap.graph.read(mapToSigma(JSON.parse(response)));
+            sWrap.graph.read(mapToSigma(response));
             sWrap.refresh();
         }
     });
 }
 
 function loadGame(path) {
-    $.ajax({
+    $.getJSON({
         url: path,
-        success: function(response) {
-            var game = JSON.parse(response);
+        success: function(game) {
             var players = [];
             for (var i = 0; i < game.num_players; ++i)
                 players[i] = "Punter" + (i + 1);
