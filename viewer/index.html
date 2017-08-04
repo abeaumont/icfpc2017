@@ -29,9 +29,8 @@ function claim(player, source, target) {
     edge.color = colors[player + 1];
     if (player === null) {
         edge.color = "#000000";
-        edge.size = 3;
-    }
-    else {
+        edge.size = 0.5;
+    } else {
         edge.color = colors[player];
         edge.size = 5;
     }
@@ -54,7 +53,7 @@ function mapToSigma(obj) {
     for (var i in res.edges) {
         var edge = res.edges[i];
         edge.id = i;
-        edge.size = 3;
+        edge.size = 0.5;
         rivers[edge.source + ";" + edge.target] = i;
     }
     return res;
@@ -126,7 +125,9 @@ $(function() {
     });
 
     sWrap = new sigma("graph-container");
-    sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8, "minEdgeSize": 3, "maxEdgeSize": 5});
+    sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8, "minEdgeSize": 0.1, "maxEdgeSize": 5});
+    sWrap.cameras[0].goTo({ x: 0, y: 0, angle: 0, ratio: 2 });
+
     loadGraph(testMap);
     loadGame(testGame);
 });
@@ -143,10 +144,10 @@ $(function() {
         </form>
     </div>
     <div id="replay">
-        <a href="begin">&lt;|</a>&nbsp;
-        <a href="#back">&lt;&lt;</a>&nbsp;
-        <a id="forward" href="#forward">&gt;&gt;</a>&nbsp;
-        <a href="#end">|&gt;</a>
+        <a href="begin">start</a>&nbsp;
+        <a href="#back">prev turn</a>&nbsp;
+        <a id="forward" href="#forward">step </a>&nbsp;
+        <a href="#end">end</a>
     </div>
     <style>
 
