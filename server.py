@@ -1,6 +1,7 @@
 import sys
 import threading
 import json
+import time
 
 import SocketServer
 GAME_PORT=9000
@@ -28,7 +29,7 @@ class GameHandler(SocketServer.StreamRequestHandler):
                 player_id = client_id["me"]
                 rsp = { "you" : player_id }
 
-                self.wfile.write(json.dumps(rsp))
+                self.wfile.write(json.dumps(rsp) + "\n")
 
                 print "PLAYER HANDSHAKE FINISHED", player_id
                 GAME.add_player(player_id, self)
@@ -43,17 +44,12 @@ class GameHandler(SocketServer.StreamRequestHandler):
 
 
 
-	while True:
-            data = self.rfile.readline().strip()
-            print "NEW DATA FROM", self.client_address[0], player_id
-            print " ", data
+        self.running = True
+	while self.running:
+            # TODO: sleep until our game is over
+            time.sleep(0.5)
+        print "ENDING GAME FOR THREAD", self
 
-            if data == '':
-                print "CLIENT EXITED"
-                break
-
-            # now need to respond to game state somehow
-            self.wfile.write(data.upper())
 
 SERVER=None
 def serve_game(game_port, HandlerClass = GameHandler):

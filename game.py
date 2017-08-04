@@ -78,4 +78,8 @@ class Game():
             # TODO: save the game state for every player on each turn or something?
 
         print "ENDING GAME!"
+        for pid in self.players:
+            player = self.players[pid]
+            player.request.running = False
+
         # TODO: evaluate the actual game
