@@ -4,9 +4,11 @@
 * [x] implement online game server
 * [x] add skeleton for online client
 * [x] add random online client
-* [+] add scoring to game server
-* [+] add visualizer for game states (from the server view)
-* [ ] save game state to file
+* [ ] add scoring to game server
+* [x] add visualizer for game states (from the server view)
+* [ ] polish visualizer
+* [x] save game state to file
+* [x] save client game state to file
 * [ ] add skeleton for offline client
 * [ ] make game server robust
 * [ ] add greedy online client
@@ -37,7 +39,7 @@ Day 2:
 
 * Brute-force solver for testing on small. Make it usable near the end of games
   as well.
-* MCTS
+* MCTS (monte carlo tree search)
 * policy function (move evaluation) using up to about 50 features, optimize weights by self-play
 * Greedy rules based on how valuable each river is. Probably doomed unless we
   come up with clever rules.
