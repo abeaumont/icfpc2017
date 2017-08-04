@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<script src="jquery-3.2.1.min.js"></script>
+<script src="sigma.min.js"></script>
+<script src="sigma.parsers.json.min.js"></script>
+<script type="text/javascript">
+
+var testMap = "../maps/sample.json";
+var sWrap;
+
+function mapToSigma(obj) {
+    var res = {"nodes": obj.sites, "edges": obj.rivers};
+    for (var n of res.nodes) {
+        n.size = 2;
+        n.color = "#000000";
+    }
+    for (var i in res.edges)
+        res.edges[i].id = i;
+    return res;
+}
+
+function loadGraph(path) {
+    $.ajax({
+        url: path,
+        success: function(response) {
+            sWrap.graph.clear();
+            sWrap.graph.read(mapToSigma(JSON.parse(response)));
+            sWrap.refresh();
+        }
+    });
+}
+
+$(function() {
+    $(':button').on('click', function() {
+        loadGraph("../maps/" + $("#file").val() + ".json");
+    });
+    sWrap = new sigma("graph-container");
+    loadGraph(testMap);
+});
+</script>
+<head>
+    <title>LambdaPunt state viewer</title>
+</head>
+<body>
+    <div id="load">
+        <form enctype="multipart/form-data" method="post">
+            <input id="file" type="text" value="circle"/>
+            <input type="button" value="Load"/>
+        </form>
+    </div>
+    <div id="replay">
+        <a href="#back">&lt;</a>
+        <a href="#forward">&gt;</a>
+    </div>
+    <style>
+
+    #graph-container {
+      max-width: 800px; height: 600px; margin: auto;
+    }
+
+  </style>
+    <div id="graph-container"></div>
+</body>
+</html>
