@@ -35,7 +35,7 @@ class RandPunter(interface.Punter):
             "num_players" : self.punters
         }
         json_str = json.dumps(json_obj)
-        fname = os.path.join('output', self.fname)
+        fname = os.path.join('output', self.fname, '.json')
         with open(fname, "w") as f:
             f.write(json_str)
         print "SAVED GAME TO", fname, "SIZE IS", len(json_str)
