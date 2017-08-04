@@ -4,7 +4,6 @@
 <script src="./sigma.min.js"></script>
 <script type="text/javascript">
 
-var testMap = "../maps/lambda.json";
 var testGame = "../output/game.two_random.json";
 var turns, currentTurn;
 var sWrap;
@@ -81,6 +80,13 @@ function loadGame(path) {
             turns = game.turns;
             currentTurn = 0;
             $("#log").text("The game was loaded");
+
+            console.log("GAME IS", game);
+
+            if (game.map) {
+              sWrap.graph.read(mapToSigma(game.map));
+              sWrap.refresh();
+            }
         }
     });
 }
@@ -128,7 +134,6 @@ $(function() {
     sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8, "minEdgeSize": 0.1, "maxEdgeSize": 5});
     sWrap.cameras[0].goTo({ x: 0, y: 0, angle: 0, ratio: 2 });
 
-    loadGraph(testMap);
     loadGame(testGame);
 });
 

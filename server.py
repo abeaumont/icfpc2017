@@ -82,20 +82,11 @@ def start():
 
     return game_thread
 
-MAP="maps/lambda.json"
-PLAYERS=1
+MAP="maps/sample.json"
+PLAYERS=2
 def main():
     global GAME
-    with open(MAP, "r") as f:
-        data = f.read()
-
-    json_map = json.loads(data)
-    print "LOADING SERVER..."
-    print "LOADING MAP", MAP
-    print "MAKING GAME"
-    GAME = game.Game(json_map, PLAYERS)
-    print "EXPECTED PLAYERS", PLAYERS
-
+    GAME = game.Game(MAP, PLAYERS)
     t = start()
 
     while True:

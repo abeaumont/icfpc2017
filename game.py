@@ -29,14 +29,23 @@ class Player():
 
 class Game():
     def __init__(self, game_map, num_players):
+        with open(game_map, "r") as f:
+            data = f.read()
+
+        json_map = json.loads(data)
+        print "LOADING SERVER..."
+        print "LOADING MAP", game_map
+        print "MAKING GAME"
+        print "EXPECTED PLAYERS", num_players
+
         self.l = threading.Lock()
         self.players = {}
-        self.map = game_map
+        self.map = json_map
         self.num_players = num_players
 
-        print "MAP HAS %s RIVERS" % (len(game_map["rivers"]))
-        print "MAP HAS %s SITES" % (len(game_map["sites"]))
-        print "MAP HAS %s MINES" % (len(game_map["mines"]))
+        print "MAP HAS %s RIVERS" % (len(json_map["rivers"]))
+        print "MAP HAS %s SITES" % (len(json_map["sites"]))
+        print "MAP HAS %s MINES" % (len(json_map["mines"]))
 
     def add_player(self, player_name, player_request):
         with self.l:
@@ -105,7 +114,8 @@ class Game():
 
         json_obj = {
             "turns" : self.all_turns,
-            "num_players" : len(self.players)
+            "num_players" : len(self.players),
+            "map" : self.map
         }
         json_str = json.dumps(json_obj)
         with open(filename, "w") as f:
