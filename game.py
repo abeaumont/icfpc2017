@@ -1,6 +1,7 @@
 # this is the actual game handling code
 import threading
 import json
+import os
 
 class Player():
     def __init__(self):
@@ -60,6 +61,8 @@ class Game():
         print "SPINNING UP GAME SERVER!"
         game_map = self.map
         players = len(self.players)
+        self.all_turns = []
+
         for player in self.players.values():
             player.get_ready(players, game_map)
         turns = len(game_map["rivers"])
@@ -69,7 +72,9 @@ class Game():
         for i in range(turns):
             player = self.players[i % players]
             try:
-                round.append(player.get_move(round))
+                turn = player.get_move(round)
+                round.append(turn)
+                self.all_turns.append(turn)
             except Exception, e:
                 print "PLAYER", player.id, "HAD ERROR. PASSING TURN", turn_num
                 print " ", e
@@ -88,4 +93,20 @@ class Game():
             player.request.running = False
 
         # TODO: evaluate the actual game
+        self.save_game()
         self.players = {}
+
+
+    def save_game(self, filename="output/game.json"):
+        try:
+            os.makedirs("output")
+        except OSError:
+            pass
+
+        json_obj = {
+            "turns" : self.all_turns,
+        }
+        json_str = json.dumps(json_obj)
+        with open(filename, "w") as f:
+            f.write(json_str)
+        print "SAVED GAME TO", filename, "SIZE IS", len(json_str)
