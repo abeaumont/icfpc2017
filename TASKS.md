@@ -61,6 +61,6 @@ Day 2:
 * distanceFromMines
 * howLikelyWeAreToLinkMines - how to compute?
 * wouldLink
-* couldntPossibleConnectToAMine/orphaned -- able to detect rule out using BFS/DFS
+* couldntPossibleConnectToAMine/orphaned/unreachable -- able to detect rule out using BFS/DFS
 
 O(3632) rivers in examples .'. each feature in O(V^2)
