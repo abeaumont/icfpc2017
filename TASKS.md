@@ -41,8 +41,9 @@ Day 2:
 
 * Brute-force solver for testing on small. Make it usable near the end of games
   as well.
-* MCTS (monte carlo tree search)
+* MCTS (monte carlo tree search), code here: 
 * policy function (move evaluation) using up to about 50 features, optimize weights by self-play
+* possibly even guide the MCTS using the policy function
 * Greedy rules based on how valuable each river is. Probably doomed unless we
   come up with clever rules.
 * tit for tat: try a symmetric strategy (nim-like)
@@ -59,5 +60,7 @@ Day 2:
 * isCutEdge
 * distanceFromMines
 * howLikelyWeAreToLinkMines - how to compute?
+* wouldLink
+* couldntPossibleConnectToAMine/orphaned -- able to detect rule out using BFS/DFS
 
 O(3632) rivers in examples .'. each feature in O(V^2)
