@@ -31,3 +31,9 @@ Day 2:
 ## Strategy Ideas
 
 * put your ideas here!
+
+* Brute-force solver for testing on small. Make it usable near the end of games
+  as well.
+* MCTS
+* Greedy rules based on how valuable each river is. Probably doomed unless we
+  come up with clever rules.
