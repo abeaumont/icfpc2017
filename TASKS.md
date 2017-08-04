@@ -57,4 +57,4 @@ Day 2:
 * isCutEdge
 * distanceFromMines
 * howLikelyWeAreToLink - how to compute?
-* O(3632) rivers in examples .'. up to about 18 * V^2 time possible
+O(3632) rivers in examples .'. up to about 18 * V^2 time possible
