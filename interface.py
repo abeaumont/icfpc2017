@@ -1,5 +1,6 @@
 import json
 import socket
+import sys
 
 
 class Punter(object):
@@ -20,36 +21,41 @@ class Punter(object):
         self.log("end of game!")
 
     def claim(self, source, target):
-        self._send({'claim': self.punter, 'source': source, 'target': target})
+        return {'claim': {'punter': self.punter, 'source': source, 'target': target}}
 
     def pass_(self):
-        self._send({'pass': {'punter': self.punter}})
+        return {'pass': {'punter': self.punter}}
         
     def log(self, message, *args):
-        print >>sys.stderr, "[%s] %s" % (self.name, (message % args))
+        print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
 
 
 class Interface(object):
     def __init__(self, name, punter_class, server):
         self.name = name
-        self.punter_cls = punter_class
+        self.punter_class = punter_class
         self.punter = None
         self.server = server
 
     def _send(self, msg):
+        print('sending message: ', msg)
         self.server.write(json.dumps(msg) + '\n')
         self.server.flush()
 
     def _recv(self):
         line = self.server.readline()
+        print('receiving message: ', line)
         if not line:
             raise EOFError()
         return json.loads(line)
         
     def run(self):
         self._send({'me': self.name})
+        self._recv()
         init = self._recv()
-        self.punter = self.punter_class(name, init)
+        print init
+        self._send({'ready': init['punter']})
+        self.punter = self.punter_class(self.name, init)
         while True:
             state = self._recv()
             if 'stop' in state:

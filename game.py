@@ -8,8 +8,18 @@ class Player():
 
     def get_move(self, prev_round):
         print "PROMPTING PLAYER FOR MOVE", self.id, "PREV ROUND:", prev_round
-        self.request.wfile.write(json.dumps(prev_round))
-        move = json.loads(self.request.rfile.readline())
+        self.request.wfile.write(json.dumps({"move": {"moves": prev_round}}) + '\n')
+        return json.loads(self.request.rfile.readline())
+
+    def get_ready(self, punter, punters, game_map):
+        print "Player setup", self.id
+        self.request.wfile.write(json.dumps({
+            'punter': punter,
+            'punters': punters,
+            'map': game_map}) + '\n')
+        line = self.request.rfile.readline()
+        print line
+        return json.loads(line)
         
 
 class Game():
@@ -43,6 +53,8 @@ class Game():
     def start(self):
         print "SPINNING UP GAME SERVER!"
         game_map = self.map
+        for pid in self.players:
+            self.players[pid].get_ready(pid, len(self.players), game_map)
         num_turns = len(game_map["rivers"])
 
         moves = []
@@ -50,19 +62,19 @@ class Game():
         turn_num = 0
         round_num = 0
         player_turn = 0
-        prev_round = { }
+        prev_round = []
         for pid in self.players:
-            prev_round[pid] = "na"
+            prev_round.append({"pass": {"punter": pid}})
 
-        this_round = {}
+        this_round = []
         while turn_num < num_turns:
             player = self.players[player_turn]
             try:
-                this_round[player.id] = player.get_move(prev_round)
+                this_round.append(player.get_move(prev_round))
             except Exception, e:
                 print "PLAYER", player.id, "HAD ERROR. PASSING TURN", turn_num
                 print " ", e
-                this_round[player.id] = "na"
+                this_round.append({"pass": {"punter": player_turn}})
 
 
             # end of turn book keeping
@@ -72,7 +84,7 @@ class Game():
                 player_turn = 0
 
                 prev_round = this_round
-                this_round = {}
+                this_round = []
 
             turn_num += 1
             # TODO: save the game state for every player on each turn or something?
