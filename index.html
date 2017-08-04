@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<script src="viewer/jquery-3.2.1.min.js"></script>
+<script src="viewer/sigma.min.js"></script>
+<script type="text/javascript">
+
+var testMap = "maps/lambda.json";
+var testGame = "output/game.two_random.json";
+var turns, currentTurn;
+var sWrap;
+var rivers = {};
+
+var colors = ["#cc0000", "#00cc00", "#0000cc", "aaaa00", "aa00aa", "00aaaa"];
+
+function initGame(players) {
+    for (var i in players) {
+        var row =
+            $("<tr>")
+                .append($("<td>").append($("<font>").attr("color", colors[i]).text(players[i])))
+                .append($("<td>").text(0));
+        $("#scoreboard").after(row);
+    }
+}
+
+function claim(player, source, target) {
+    var river = rivers[source + ";" + target];
+    var edge = sWrap.graph.edges(river);
+    edge.color = colors[player];
+    edge.size = 5;
+    sWrap.refresh();
+
+    $("#log").append(player + " has claimed " + source + "->" + target + "<br/>");
+}
+
+function mapToSigma(obj) {
+    var res = {"nodes": obj.sites, "edges": obj.rivers};
+    for (var n of res.nodes) {
+        n.size = 2;
+        n.color = "#000000";
+    }
+    for (var i in res.edges) {
+        var edge = res.edges[i];
+        edge.id = i;
+        edge.size = 3;
+        rivers[edge.source + ";" + edge.target] = i;
+    }
+    return res;
+}
+
+function loadGraph(path) {
+    $.ajax({
+        url: path,
+        success: function(response) {
+            sWrap.graph.clear();
+            sWrap.graph.read(mapToSigma(JSON.parse(response)));
+            sWrap.refresh();
+        }
+    });
+}
+
+function loadGame(path) {
+    $.ajax({
+        url: path,
+        success: function(response) {
+            var game = JSON.parse(response);
+            var players = [];
+            for (var i = 0; i < game.num_players; ++i)
+                players[i] = "Punter" + (i + 1);
+            initGame(players);
+            turns = game.turns;
+            currentTurn = 0;
+        }
+    });
+}
+
+function nextTurn() {
+    turn = turns[currentTurn++];
+    if (turn.claim) {
+        var data = turn.claim;
+        claim(data.punter, data.source, data.target);
+    }
+}
+
+$(function() {
+    $(':button').on('click', function() {
+        loadGraph("maps/" + $("#file").val() + ".json");
+    });
+
+    $("#forward").click(nextTurn);
+
+    $(document).keydown(function(e) {
+        switch (e.keyCode) {
+            case 39: nextTurn(); break;
+        }
+    });
+
+    sWrap = new sigma("graph-container");
+    sWrap.settings({"minEdgeSize": 3, "maxEdgeSize": 5});
+    loadGraph(testMap);
+    loadGame(testGame);
+});
+
+</script>
+<head>
+    <title>LambdaPunt state viewer</title>
+</head>
+<body>
+    <div id="load">
+        <form enctype="multipart/form-data" method="post">
+            <input id="file" type="text" value="circle"/>
+            <input type="button" value="Load"/>
+        </form>
+    </div>
+    <div id="replay">
+        <a href="begin">&lt;|</a>&nbsp;
+        <a href="#back">&lt;&lt;</a>&nbsp;
+        <a id="forward" href="#forward">&gt;&gt;</a>&nbsp;
+        <a href="#end">|&gt;</a>
+    </div>
+    <style>
+
+    #graph-container {
+        max-width: 800px; height: 600px; margin: auto;
+    }
+
+  </style>
+    <div id="graph-container">
+    </div>
+    <table border="1"><tr>
+        <td>
+            <table id="scoreboard"><tr><th>Player</th><th>Score</th></tr></table>
+        </td>
+        <td width="100%">
+            <div id="log" style="height: 240px; width=100%; overflow-y: scroll"></div>
+        </td>
+    </tr></table>
+</body>
+</html>
