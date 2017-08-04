@@ -55,43 +55,28 @@ class Game():
         game_map = self.map
         for pid in self.players:
             self.players[pid].get_ready(pid, len(self.players), game_map)
-        num_turns = len(game_map["rivers"])
+        turns = len(game_map["rivers"])
+        players = len(self.players)
 
         moves = []
-
-        turn_num = 0
-        round_num = 0
         player_turn = 0
-        prev_round = []
-        for pid in self.players:
-            prev_round.append({"pass": {"punter": pid}})
-
-        this_round = []
-        while turn_num < num_turns:
-            player = self.players[player_turn]
+        round = []
+        for i in range(turns):
+            player = self.players[i % players]
             try:
-                this_round.append(player.get_move(prev_round))
+                round.append(player.get_move(round))
             except Exception, e:
                 print "PLAYER", player.id, "HAD ERROR. PASSING TURN", turn_num
                 print " ", e
-                this_round.append({"pass": {"punter": player_turn}})
-
+                round.append({"pass": {"punter": player_turn}})
+            if len(round) > players:
+                round.pop(0)
 
             # end of turn book keeping
             player_turn += 1 
-            if player_turn == self.num_players:
-                round_num += 1
-                player_turn = 0
-
-                prev_round = this_round
-                this_round = []
-
-            turn_num += 1
-            # TODO: save the game state for every player on each turn or something?
 
         print "ENDING GAME!"
-        for pid in self.players:
-            player = self.players[pid]
+        for player in self.players.values():
             player.request.running = False
 
         # TODO: evaluate the actual game
