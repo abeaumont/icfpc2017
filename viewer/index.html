@@ -8,9 +8,10 @@ var testMap = "../maps/lambda.json";
 var testGame = "../output/game.two_random.json";
 var turns, currentTurn;
 var sWrap;
+var mines;
 var rivers = {};
 
-var colors = ["#cc0000", "#00cc00", "#0000cc", "aaaa00", "aa00aa", "00aaaa"];
+var colors = ["#00cc00", "#0000cc", "aaaa00", "aa00aa", "00aaaa"];
 
 function initGame(players) {
     for (var i in players) {
@@ -25,18 +26,30 @@ function initGame(players) {
 function claim(player, source, target) {
     var river = rivers[source + ";" + target];
     var edge = sWrap.graph.edges(river);
-    edge.color = colors[player];
-    edge.size = 5;
+    edge.color = colors[player + 1];
+    if (player === null) {
+        edge.color = "#000000";
+        edge.size = 3;
+    }
+    else {
+        edge.color = colors[player];
+        edge.size = 5;
+    }
     sWrap.refresh();
-
-    $("#log").append(player + " has claimed " + source + "->" + target + "<br/>");
 }
 
 function mapToSigma(obj) {
     var res = {"nodes": obj.sites, "edges": obj.rivers};
+    mines = new Set(obj.mines);
+    console.log(mines);
     for (var n of res.nodes) {
-        n.size = 2;
-        n.color = "#000000";
+        if (mines.has(n.id)) {
+            n.size = 5;
+            n.color = "#2200cc";
+        } else {
+            n.size = 3;
+            n.color = "#000000";
+        }
     }
     for (var i in res.edges) {
         var edge = res.edges[i];
@@ -68,15 +81,32 @@ function loadGame(path) {
             initGame(players);
             turns = game.turns;
             currentTurn = 0;
+            $("#log").text("The game was loaded");
         }
     });
 }
 
+function prevTurn() {
+    if (currentTurn == 0)
+        return;
+    currentTurn--;
+    turn = turns[currentTurn];
+    if (turn.claim) {
+        var data = turn.claim;
+        claim(null, data.source, data.target);
+    }
+    $("#turn" + currentTurn).remove();
+}
+
 function nextTurn() {
-    turn = turns[currentTurn++];
+    if (currentTurn == turns.length)
+        return;
+    turn = turns[currentTurn];
     if (turn.claim) {
         var data = turn.claim;
         claim(data.punter, data.source, data.target);
+        $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " has claimed " + data.source + "->" + data.target));
+        currentTurn++;
     }
 }
 
@@ -85,16 +115,18 @@ $(function() {
         loadGraph("maps/" + $("#file").val() + ".json");
     });
 
+    $("#back").click(prevTurn);
     $("#forward").click(nextTurn);
 
     $(document).keydown(function(e) {
         switch (e.keyCode) {
+            case 37: prevTurn(); break;
             case 39: nextTurn(); break;
         }
     });
 
     sWrap = new sigma("graph-container");
-    sWrap.settings({"minEdgeSize": 3, "maxEdgeSize": 5});
+    sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8, "minEdgeSize": 3, "maxEdgeSize": 5});
     loadGraph(testMap);
     loadGame(testGame);
 });
