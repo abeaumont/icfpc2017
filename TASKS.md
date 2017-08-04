@@ -51,3 +51,10 @@ Day 2:
 * Do a BFS from each mine, labeling each node as its squared distance from the mine. Then during gameplay, we try to obtain the highest value nodes
 * Make an optimal play at each step
 * Make a greedy algorithm that has tuneable co-efficients for optimizing
+
+### Edge Features
+* wouldLink2Mines
+* isCutEdge
+* distanceFromMines
+* howLikelyWeAreToLink - how to compute?
+* O(3632) rivers in examples .'. up to about 18 * V^2 time possible
