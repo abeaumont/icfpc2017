@@ -87,10 +87,10 @@ Day 3:
 9. totalDistanceFromAllOfYourRivers
 10. totalDistanceFromAllOfEnemyRivers
 11. numNodesReachableFromNewlyAccessibleNode
-12. totalNumberOfOutgoingRiversFromHeadAndTailNodes
-13* totalDistanceFromAllMines
-14* howLikelyToLinkMines - ?how to compute
-15* ? -- ?fast enough
+12. fanOutFromHeadPlusTail
+13. totalDistanceFromAllMines
+14. howLikelyToLinkMines - ?how to compute
+15. ? -- ?fast enough
 
 ###### Terms
 * -r-: unclaimed river/blue river r
