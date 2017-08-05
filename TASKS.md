@@ -58,9 +58,9 @@ Day 2:
 ### River Features (heuristics)
 * couldntPossiblyConnectToAMine/orphaned/unreachable -- able to detect rule out using BFS/DFS O(|V|+|E|)
 * wouldLink2Mines
-* isCutEdge/isOnlyRiverToSubGraphOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
+* isBridge/bridgeValue/isCutEdge/isTheOnlyRiverToSubGraphConnectedComponentOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
 * distanceFromMines
-* howLikelyWeAreToLinkMines - how to compute?
+* howLikelyToLinkMines - how to compute?
 * wouldLink
 * totalNumberOfOutgoingRiversFromHeadAndTailNodes
 * numNodesReachableFromHeadNode
