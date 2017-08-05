@@ -2,6 +2,7 @@ import json
 import socket
 import sys
 import os
+import traceback
 import uuid
 
 from helpers import game_url
@@ -74,9 +75,6 @@ class Punter(object):
 
         for river in self.rivers:
             if (river["target"] == target and river["source"] == source) or (river["target"] == source and river["source"] == target):
-
-
-
                 return {'claim': {'punter': self.punter, 'source': river["source"], 'target': river["target"]}}
 
     def pass_(self):
@@ -223,8 +221,8 @@ class OfflineInterface(object):
                     'ready': msg['punter'],
                     'state': self.punter.get_state()
                 })
-            except Exception as e:
-                self.log('error: %s', str(e))
+            except:
+                self.log('error: %s', traceback.format_exc())
         elif 'move' in msg:
             try:
                 self.punter = self.punter_class(self.name, msg['state'])
@@ -232,15 +230,15 @@ class OfflineInterface(object):
                 msg = self.punter.turn(msg)
                 msg['state'] = self.punter.get_state()
                 self._send(msg)
-            except Exception as e:
-                self.log('error: %s', str(e))
+            except:
+                self.log('error: %s', traceback.format_exc())
         elif 'stop' in msg:
             try:
                 self.punter = self.punter_class(self.name, msg['state'])
                 self.punter.upkeep_punter(msg)
                 self.punter.stop(msg)
-            except Exception as e:
-                self.log('error: %s', str(e))
+            except:
+                self.log('error: %s', traceback.format_exc())
         self.fd.close()
 
 
