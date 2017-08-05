@@ -5,37 +5,46 @@
 * [x] add skeleton for online client
 * [x] add random online client
 * [ ] add scoring to game server [kadoban]
-* [ ] add url param to game viewer that preloads file, then add url printing to server
+* [x] add url param to game viewer that preloads file, then add url printing to server
 * [x] move the python clients to a subdir
 * [x] add visualizer for game states (from the server view)
-* [ ] polish visualizer [okay]
+* [x] polish visualizer [jkhl]
 * [x] save game state to file
 * [x] save client game state to file
 * [ ] add skeleton for offline client
 * [ ] make game server robust
 * [ ] add greedy online client
-* [ ] brainstorm strategies [all]
 * [ ] understand the limitations of what we can store in game state
 * [x] understand if all pairs shortest path is feasible (it's not)
+
+### Strategy stuff
+
+* [ ] brainstorm strategies [all]
 * [ ] implement MST based strategy
 * [ ] implement client strategy [yuuri]
+* [ ] implement strategy to connect multiple mines via tree
+* [ ] implement optimized DFS strategy (that reaches for points)
 
 
 ## GOALS:
 
 Day 1:
 
- * implement online server and clients
- * add game scoring to online server
- * implement multiple strategies to get an idea of whats possible
- * understand how big the maps can get
- * try out a random client in the online mode on their server
+ * [x] implement online server and clients
+ * [x] implement multiple strategies to get an idea of whats possible
+ * [ ] add game scoring to online server
+ * [x] understand how big the maps can get
+ * [x] try out a random client in the online mode on their server
 
 Day 2:
 
-  * add tournaments for running against multiple AI
-  * add some statistics / historical logging, so we can get an idea of an AI's ability
-  * convert to offline mode
+  * [ ] add tournaments for running against multiple AI
+  * [ ] add some statistics / historical logging, so we can get an idea of an AI's ability
+  * [ ] convert to offline mode
+
+Day 3:
+
+  * TBD
 
 ## Strategy Ideas
 
