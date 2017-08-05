@@ -5,7 +5,7 @@
 * [x] add skeleton for online client
 * [x] add random online client
 * [ ] add scoring to game server [kadoban]
-* [ ] move the python clients to a subdir
+* [x] move the python clients to a subdir
 * [x] add visualizer for game states (from the server view)
 * [ ] polish visualizer [okay]
 * [x] save game state to file
