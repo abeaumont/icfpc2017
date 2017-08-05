@@ -189,6 +189,9 @@ $(function() {
           console.log("DOING TURN", data);
           claim(data.punter, data.source, data.target);
           $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
+      } else if (turn.pass) {
+
+          $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(turn.pass.punter + " passed"));
       }
       currentTurn++;
   }
