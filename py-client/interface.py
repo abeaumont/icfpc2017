@@ -28,7 +28,7 @@ class Punter(object):
         else:
             self.all_turns = []
         if 'neighbors' in state:
-            self.neighbors = {k: set(v) for k,v in state['neighbors'].iteritems()}
+            self.neighbors = {int(k): set(v) for k,v in state['neighbors'].iteritems()}
         else:
             neighbors = {}
             for r in self.rivers:
@@ -43,19 +43,23 @@ class Punter(object):
             self.neighbors = neighbors
 
 
+        distances = {}
         if 'distances' in state:
-            self.distances = state['distances']
+            for neighbor in state['distances']:
+                distances[int(neighbor)] = {}
+                for k,v in state['distances'][neighbor].iteritems():
+                    distances[int(neighbor)][int(k)] = v
         else:
             # do our BFS from each mine here
-            distances = {}
             for m in self.mines:
                 distances[m] = self.calc_distances_for_mine(m)
 
-            self.distances = distances
+        self.distances = distances
 
 
     def get_state(self):
         """State to be saved between turns (offline mode only)"""
+        self.log("SAVING STATE FROM INTERFACE")
         state = self.state
         state['available_rivers'] = list(self.available_rivers)
         state['all_turns'] = self.all_turns
