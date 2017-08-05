@@ -5,6 +5,7 @@ import os
 import uuid
 
 from helpers import game_url
+from collections import deque
 
 class Punter(object):
     def __init__(self, name, state, fname=None):
@@ -40,6 +41,18 @@ class Punter(object):
                 neighbors[d].add(s)
             self.neighbors = neighbors
 
+
+        if 'distances' in state:
+            self.distances = state['distances']
+        else:
+            # do our BFS from each mine here
+            distances = {}
+            for m in self.mines:
+                distances[m] = self.calc_distances_for_mine(m)
+
+            self.distances = distances
+
+
     def get_state(self):
         """State to be saved between turns (offline mode only)"""
         state = self.state
@@ -63,6 +76,20 @@ class Punter(object):
 
     def log(self, message, *args):
         print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
+
+    def calc_distances_for_mine(self, m):
+        seen, todo = { m: 0 }, deque([(m, 0)])
+        while todo:
+            v, d = todo.popleft()
+            if v not in self.neighbors:
+                continue
+
+            for c in self.neighbors[v]:
+                if c in seen:
+                    continue
+                todo.append((c, d+1))
+                seen[c] = d*d
+        return seen
 
     def upkeep_punter(self, state):
         if 'move' in state:

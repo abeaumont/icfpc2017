@@ -1,6 +1,7 @@
 import os
 import interface
 
+import heapq
 
 
 # optimizations to make:
@@ -11,7 +12,8 @@ class DFSPunter(interface.Punter):
     def __init__(self, name, init_state, fname=None):
         super(DFSPunter, self).__init__(name, init_state)
 
-        self.dfs_stack = [m for m in self.mines]
+        # the dfs stack is: score, node, originating mine
+        self.dfs_stack = [(1, m, m) for m in self.mines]
         self.visited = {}
 
         if 'visited' in init_state:
@@ -29,15 +31,18 @@ class DFSPunter(interface.Punter):
         self.log("state: %s", state)
 
 
-        def visit(next_site, neighbor, consider_visit=True):
+        def visit(mine, next_site, neighbor, consider_visit=True):
             if next_site > neighbor:
                 edge = (neighbor, next_site)
             else:
                 edge = (next_site, neighbor)
 
             if (not neighbor in self.visited or neighbor in self.mines) and edge in self.available_rivers:
-                self.dfs_stack.append(next_site) # re-enqueue ourselves just in case
-                self.dfs_stack.append(neighbor)
+                score = self.distances[mine][neighbor]
+                this_score = self.distances[mine][next_site]
+
+                heapq.heappush(self.dfs_stack, (this_score, next_site, mine) )
+                heapq.heappush(self.dfs_stack, (score, neighbor, mine) )
 
                 if consider_visit:
                     self.visited[neighbor] = True
@@ -52,24 +57,24 @@ class DFSPunter(interface.Punter):
                 continue
 
             for neighbor in self.neighbors[m]:
-                ret = visit(m, neighbor)
+                ret = visit(m, m, neighbor)
                 if ret:
                     return ret
 
         while len(self.dfs_stack):
-            next_site = self.dfs_stack.pop()
+            next_score, next_site, mine = self.dfs_stack.pop()
             if next_site not in self.neighbors:
                 continue
 
             # prioritize mines we can reach
             for neighbor in self.neighbors[next_site]:
                 if neighbor in self.mines:
-                    ret = visit(next_site, neighbor)
+                    ret = visit(mine, next_site, neighbor)
                     if ret:
                         return ret
 
             for neighbor in self.neighbors[next_site]:
-                ret = visit(next_site, neighbor)
+                ret = visit(mine, next_site, neighbor)
                 if ret:
                     return ret
 
@@ -79,5 +84,5 @@ class DFSPunter(interface.Punter):
             return self.claim(*self.available_rivers.pop())
 
 if __name__ == '__main__':
-    iface = interface.MakeInterface("DFS Punter", DFSPunter)
+    iface = interface.MakeInterface("DMb Punter", DFSPunter)
     iface.run()
