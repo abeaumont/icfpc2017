@@ -20,7 +20,7 @@ class Player():
         return msg
 
     def get_ready(self, punters, game_map):
-        print "Player setup", self.id
+        #print "Player setup", self.id
         self.request._send({
             'punter': self.id,
             'punters': punters,
@@ -36,8 +36,8 @@ class Player():
 
 class Game():
     def __init__(self, maps, num_players):
-        print "LOADING SERVER..."
-        print "EXPECTED PLAYERS", num_players
+        #print "LOADING SERVER..."
+        print "Server up for {} players", num_players
 
         self.l = threading.Lock()
         self.players = {}
@@ -54,7 +54,7 @@ class Game():
             player.id = pid
             player.request = player_request
             self.players[pid] = player
-            print "ADDING PLAYER", player, player.id, player.name
+            #print "ADDING PLAYER", player, player.id, player.name
 
 
             if len(self.players) == self.num_players:
@@ -66,22 +66,21 @@ class Game():
     def start(self):
         game_map = self.maps[self.current_map % self.num_maps]
         self.current_map += 1
-        print "LOADING MAP", game_map
-        print "MAKING GAME"
         with open(game_map, "r") as f:
             data = f.read()
-        game_map = json.loads(data)
-        self.map = game_map
-        print "SPINNING UP GAME SERVER!"
-        print "MAP HAS %s RIVERS" % (len(game_map["rivers"]) if 'rivers' in game_map else 0)
-        print "MAP HAS %s SITES" % (len(game_map["sites"]) if 'sites' in game_map else 0)
-        print "MAP HAS %s MINES" % (len(game_map["mines"]) if 'mines' in game_map else 0)
+        self.map = json.loads(data)
+        print "Map: {}, rivers: {}, sites: {}, mines {}".format(
+            game_map,
+            len(self.map["rivers"]) if 'rivers' in self.map else 0,
+            len(self.map["sites"]) if 'sites' in self.map else 0,
+            len(self.map["mines"]) if 'mines' in self.map else 0
+        )
         players = len(self.players)
         self.all_turns = []
 
         for player in self.players.values():
-            player.get_ready(players, game_map)
-        turns = len(game_map["rivers"]) if 'rivers' in game_map else 0
+            player.get_ready(players, self.map)
+        turns = len(self.map["rivers"]) if 'rivers' in self.map else 0
 
         player_turn = 0
         round = [{"pass": {"punter": player}} for player in range(1, players)]
@@ -111,18 +110,17 @@ class Game():
                                       conv_rivers(rivers),
                                       to_claimed_rivers(self.all_turns)))]
         #for k, s in zip(sorted(self.players.keys()), scores):
+        print 'score>', ', '.join(['{}: {}'.format(d['punter'], d['score']) for d in scores])
         for p in sorted(self.players.values()):
-            print scores
             p.stop(round, scores)
             #round.append()
             #round.pop(0)
 
-        print "ENDING GAME!"
         for player in self.players.values():
             player.request.running = False
 
         # TODO: evaluate the actual game
-        self.save_game()
+        self.save_game(filename='output/' + os.path.basename(game_map))
         self.players = {}
 
 
