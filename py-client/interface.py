@@ -3,6 +3,8 @@ import socket
 import sys
 import os
 
+from helpers import game_url
+
 class Punter(object):
     def __init__(self, name, init_state):
         self.name = name
@@ -46,7 +48,7 @@ class Punter(object):
         fname = os.path.join('output', self.fname + '.json')
         with open(fname, "w") as f:
             f.write(json_str)
-        print "SAVED GAME TO", fname, "SIZE IS", len(json_str)
+        print "SAVED GAME TO", game_url(fname), "SIZE IS", len(json_str)
         
 
 

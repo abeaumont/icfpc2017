@@ -5,6 +5,8 @@ import os
 from score import score_game
 from util import *
 
+helpers = __import__("py-client").helpers
+
 class Player():
     def __init__(self):
         pass
@@ -125,4 +127,4 @@ class Game():
         json_str = json.dumps(json_obj)
         with open(filename, "w") as f:
             f.write(json_str)
-        print "SAVED GAME TO", filename, "SIZE IS", len(json_str)
+        print "SAVED GAME TO", helpers.game_url(filename), "SIZE IS", len(json_str)

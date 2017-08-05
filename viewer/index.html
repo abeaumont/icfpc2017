@@ -25,151 +25,169 @@ table { float: left; margin-left: 50%; height: calc(100% - 37px); position: abso
 <script src="./sigma.min.js"></script>
 <script type="text/javascript">
 
-var testGame = "../output/game.json";
-var turns, currentTurn;
-var sWrap;
-var mines;
-var rivers = {};
-
-//var colors = ["#00cc00", "#0000cc", "#aaaa00", "#aa00aa", "#00aaaa"];
-//var colors = ["#00cc00", "#0000cc", "aaaa00", "aa00aa", "00aaaa"];
-//var colors = ["#00ff00", "#0000ff", "aaaa00", "aa00aa", "00aaaa"];
-var colors = ["#1f77b4", "#aec7e8", "#aaaa00", "#aa00aa", "#00aaaa"];
-//var edgeColor = '#000';
-var edgeColor = '#009';//blue uncl river
-var mineColor = '#f00';//red mine
-var siteColor = '#fff';//white site
-
-function initGame(players) {
-    rivers = {};
-    for (var i in players) {
-        var row =
-            $("<tr>")
-                .append($("<td>").append($("<font>").attr("color", colors[i]).text(players[i])))
-                .append($("<td>").text(0));
-        $("#scoreboard").after(row);
-    }
+// from stackoverflow: https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-function claim(player, source, target) {
-    var river = rivers[source + ";" + target];
-    var edge = sWrap.graph.edges(river);
-    edge.color = colors[player + 1];
-    if (player === null) {
-        edge.color = edgeColor;
-        edge.size = 2;
-    } else {
-        edge.color = colors[player];
-        edge.size = 10;
-    }
-    sWrap.refresh();
-}
 
-function mapToSigma(obj) {
-    var res = {"nodes": obj.sites, "edges": obj.rivers};
-    mines = new Set(obj.mines);
-    console.log(mines);
-    for (var n of res.nodes) {
-        if (mines.has(n.id)) {
-            n.size = 10;
-            //n.color = "#2200cc"; // ?
-            n.color = mineColor;
-        } else {
-            n.size = 3;
-            n.color = siteColor;//edgeColor;
-        }
-    }
-    for (var i in res.edges) {
-        var edge = res.edges[i];
-        //edge.size = 0.5;
-        edge.size = 2;
-        edge.color = edgeColor;
-        edge.id = i;
-        rivers[edge.source + ";" + edge.target] = i;
-    }
-    return res;
-}
+$(function() { 
+  var gameName = getParameterByName("game") || "game";
+  var testGame = "../output/" + gameName + ".json";
+  var turns, currentTurn;
+  var sWrap;
+  var mines;
+  var rivers = {};
 
-function loadGraph(path) {
-    $.getJSON({
-        url: path,
-        success: function(response) {
-            sWrap.graph.clear();
-            sWrap.graph.read(mapToSigma(response));
-            sWrap.refresh();
-        }
-    });
-}
+  console.log("GAME NAME",gameName);
+  $("input#file").val(gameName);
 
-function loadGame(path) {
-    $("#graph-container").empty();
-    sWrap = new sigma("graph-container");
-    sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8, "minEdgeSize": 0.1, "maxEdgeSize": 5});
-    sWrap.cameras[0].goTo({ x: 0, y: 0, angle: 0, ratio: 2 });
+  //var colors = ["#00cc00", "#0000cc", "#aaaa00", "#aa00aa", "#00aaaa"];
+  //var colors = ["#00cc00", "#0000cc", "aaaa00", "aa00aa", "00aaaa"];
+  //var colors = ["#00ff00", "#0000ff", "aaaa00", "aa00aa", "00aaaa"];
+  var colors = ["#1f77b4", "#aec7e8", "#aaaa00", "#aa00aa", "#00aaaa"];
+  //var edgeColor = '#000';
+  var edgeColor = '#009';//blue uncl river
+  var mineColor = '#f00';//red mine
+  var siteColor = '#fff';//white site
 
-    $.getJSON({
-        url: path,
-        success: function(game) {
-            var players = [];
-            for (var i = 0; i < game.num_players; ++i)
-                players[i] = "Punter" + (i + 1);
-            initGame(players);
-            turns = game.turns;
-            currentTurn = 0;
-            $("#log").text("The game was loaded");
+  function initGame(players) {
+      rivers = {};
+      for (var i in players) {
+          var row =
+              $("<tr>")
+                  .append($("<td>").append($("<font>").attr("color", colors[i]).text(players[i])))
+                  .append($("<td>").text(0));
+          $("#scoreboard").after(row);
+      }
+  }
 
-            console.log("GAME IS", game);
+  function claim(player, source, target) {
+      var river = rivers[source + ";" + target];
+      var edge = sWrap.graph.edges(river);
+      edge.color = colors[player + 1];
+      if (player === null) {
+          edge.color = edgeColor;
+          edge.size = 2;
+      } else {
+          edge.color = colors[player];
+          edge.size = 10;
+      }
+      sWrap.refresh();
+  }
 
-            if (game.map) {
-              sWrap.graph.read(mapToSigma(game.map));
-            }
+  function mapToSigma(obj) {
+      var res = {"nodes": obj.sites, "edges": obj.rivers};
+      mines = new Set(obj.mines);
+      console.log(mines);
+      for (var n of res.nodes) {
+          if (mines.has(n.id)) {
+              n.size = 10;
+              //n.color = "#2200cc"; // ?
+              n.color = mineColor;
+          } else {
+              n.size = 3;
+              n.color = siteColor;//edgeColor;
+          }
+      }
+      for (var i in res.edges) {
+          var edge = res.edges[i];
+          //edge.size = 0.5;
+          edge.size = 2;
+          edge.color = edgeColor;
+          edge.id = i;
+          rivers[edge.source + ";" + edge.target] = i;
+      }
+      return res;
+  }
 
-            sWrap.refresh();
-        }
-    });
-}
+  function loadGraph(path) {
+      $.getJSON({
+          url: path,
+          success: function(response) {
+              sWrap.graph.clear();
+              sWrap.graph.read(mapToSigma(response));
+              sWrap.refresh();
+          }
+      });
+  }
 
-function prevTurn() {
-    if (currentTurn == 0)
-        return;
-    currentTurn--;
-    turn = turns[currentTurn];
-    if (turn.claim) {
-        var data = turn.claim;
-        claim(null, data.source, data.target);
-    }
-    $("#turn" + currentTurn).remove();
-}
+  function loadGame(path) {
+      $("#graph-container").empty();
+      sWrap = new sigma("graph-container");
+      sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8, "minEdgeSize": 0.1, "maxEdgeSize": 5});
+      sWrap.cameras[0].goTo({ x: 0, y: 0, angle: 0, ratio: 2 });
 
-function nextTurn() {
-    if (currentTurn == turns.length) {
-        return;
-    }
-    turn = turns[currentTurn];
-    if (turn.claim) {
-        var data = turn.claim;
-        claim(data.punter, data.source, data.target);
-        $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
-    }
-    currentTurn++;
-}
+      $.getJSON({
+          url: path,
+          success: function(game) {
+              var players = [];
+              for (var i = 0; i < game.num_players; ++i)
+                  players[i] = "Punter" + (i + 1);
+              initGame(players);
+              turns = game.turns;
+              currentTurn = 0;
+              $("#log").text("The game was loaded");
 
-$(function() {
-    $(':button').on('click', function() {
-        loadGame("../output/" + $("#file").val() + ".json");
-    });
+              console.log("GAME IS", game);
 
-    $("#back").click(prevTurn);
-    $("#forward").click(nextTurn);
+              if (game.map) {
+                sWrap.graph.read(mapToSigma(game.map));
+              }
 
-    $(document).keydown(function(e) {
-        switch (e.keyCode) {
-            case 37: prevTurn(); break;
-            case 39: nextTurn(); break;
-        }
-    });
+              sWrap.refresh();
+          }
+      });
+  }
 
-    loadGame(testGame);
+  function prevTurn() {
+      if (currentTurn == 0)
+          return;
+      currentTurn--;
+      turn = turns[currentTurn];
+      if (turn.claim) {
+          var data = turn.claim;
+          claim(null, data.source, data.target);
+      }
+      $("#turn" + currentTurn).remove();
+  }
+
+  function nextTurn() {
+      if (currentTurn == turns.length) {
+          return;
+      }
+      turn = turns[currentTurn];
+      if (turn.claim) {
+          var data = turn.claim;
+          claim(data.punter, data.source, data.target);
+          $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
+      }
+      currentTurn++;
+  }
+
+  $(function() {
+      $(':button').on('click', function() {
+          loadGame("../output/" + $("#file").val() + ".json");
+      });
+
+      $("#back").click(prevTurn);
+      $("#forward").click(nextTurn);
+
+      $(document).keydown(function(e) {
+          switch (e.keyCode) {
+              case 37: prevTurn(); break;
+              case 39: nextTurn(); break;
+          }
+      });
+
+      loadGame(testGame);
+  });
 });
 
 </script>
@@ -180,7 +198,7 @@ $(function() {
 <body>
     <div id="load">
         <form enctype="multipart/form-data" method="post">
-            <input id="file" type="text" value="game"/>
+            <input id="file" type="text" value=""/>
             <input type="button" value="Load game json"/>
         </form>
     </div>
