@@ -71,6 +71,7 @@ Day 3:
 
 ### River Features for an unclaimed river
 * guys, go nuts here with ideas, because we could use up to about 50 features
+* -- any indicator that hints anything about how valuable a river might be
 * couldntPossiblyConnectToAMine/orphaned/unreachable -- able to detect/rule out using BFS/DFS
 * isAdjacentToMine
 * wouldLink2Mines
