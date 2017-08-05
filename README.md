@@ -8,6 +8,6 @@
 
 or
 ```
-$ bash play.sh <bot1> <bot2>   # def = py-clients/rand_punter.py
+$ bash play.sh <bot1> <bot2>   # defbot = py-clients/rand_punter.py   defmap = maps/circle.json  gonna do specified maps later
 ```
 
