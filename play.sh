@@ -29,7 +29,7 @@ while test $# -gt 0; do
   esac
 done
 
-echo "${1:-py-client/rand_punter.yp} (0)"
+echo "${1:-py-client/rand_punter.py} (0)"
 echo "          vs"
 echo "${2:-py-client/rand_punter.py} (1)"
 
