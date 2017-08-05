@@ -3,6 +3,12 @@ import os
 import interface
 import uuid
 
+
+
+# optimizations to make:
+# * prioritize which nodes we visit by their score
+# * make sure that the score we consider a node is based on their distance to the connected mine, and not by their absolute depth in the DFS
+# * try to build paths that connect multiple mines
 class DFSPunter(interface.Punter):
     def __init__(self, name, init_state, fname=None):
         super(DFSPunter, self).__init__(name, init_state)
@@ -21,9 +27,6 @@ class DFSPunter(interface.Punter):
                 print "SITE", next_site, "HAS NO NEIGHBORS"
                 continue
 
-
-
-            # TODO: fix this to properly do a DFS, not this awkward one
             for neighbor in self.neighbors[next_site]:
                 if next_site > neighbor:
                     edge = (neighbor, next_site)
