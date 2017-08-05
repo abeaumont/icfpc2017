@@ -54,7 +54,7 @@ if __name__ == '__main__':
     iface.run()
 
     
-    """
+"""
     
 def add_move(src, sqr):
   if sqr != None: 
@@ -88,14 +88,5 @@ def answer(src, dst):
     node=q.get()
     if node==dst: break
     enqueue_succs(node)
-
-  mvs = 0
-  node = dst
-  while node != src:
-    #print node
-    node = parent.get(node)
-    mvs+=1
-  print mvs
-  return mvs
-  
+    
 """
