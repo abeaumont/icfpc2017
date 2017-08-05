@@ -82,7 +82,7 @@ def start():
 
     return game_thread
 
-MAP="maps/sample.json"
+MAP="maps/circle.json"
 PLAYERS=2
 def main():
     global GAME
