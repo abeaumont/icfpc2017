@@ -43,7 +43,7 @@ Day 2:
   * [ ] add tournaments for running against multiple AI
   * [ ] add some statistics / historical logging, so we can get an idea of an AI's ability
   * [ ] convert to offline mode
-  * [ ] efficient self-play!! -- be able to test paramaterized bots vs each other, to optimize the weights of their linear policy (move evaluation) function
+  * [ ] efficient self-play!! -- be able to test a paramaterized bots vs itself, to optimize the weights of its linear policy (move evaluation) function
 
 Day 3:
   * have all the plumbing done! ready to focus solely on optimization and strategies
