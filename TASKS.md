@@ -68,10 +68,10 @@ Day 2:
 * ? -- ?fast enough
 
 ###### Terms
-* --: unclaimed river
-* ==: your river
-* xx: enemy river
-* "link": "make an adjacent edge between" eg: 1=v=2  v is a link from 1 to 2
-* "bridge": "make reachable (connected)" eg 1===2-v-3===4 v is an unclaimed bridge from 1 to 4
+* -r-: unclaimed river/blue river r
+* =r=: your river/green river r
+* xrx: enemy river/grey river r
+* "link": "make an adjacent edge between" eg: 1=r=2  r is a link from 1 to 2
+* "bridge": "make reachable (connected)" eg 1===2-r-3===4 r is an unclaimed bridge from 1 to 4
 
 O(3632) rivers in examples .'. each feature in O(V^2)
