@@ -69,7 +69,14 @@ class Punter(object):
         self.save_game()
 
     def claim(self, source, target):
-        return {'claim': {'punter': self.punter, 'source': source, 'target': target}}
+        # we need to verify the source targets properly
+
+        for river in self.rivers:
+            if (river["target"] == target and river["source"] == source) or (river["target"] == source and river["source"] == target):
+
+
+
+                return {'claim': {'punter': self.punter, 'source': river["source"], 'target': river["target"]}}
 
     def pass_(self):
         return {'pass': {'punter': self.punter}}
