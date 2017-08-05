@@ -1,12 +1,14 @@
 import json
 import socket
 import sys
+import os
 
 class Punter(object):
     def __init__(self, name, init_state):
         self.name = name
         self.punter = init_state['punter']
         self.punters = init_state['punters']
+        self.map = init_state['map']
         self.sites = {s['id'] for s in init_state['map']['sites']}
         self.rivers = init_state['map']['rivers']
         self.mines = init_state['map']['mines']
@@ -27,6 +29,26 @@ class Punter(object):
 
     def log(self, message, *args):
         print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
+
+    def save_game(self):
+        try:
+            os.makedirs("output")
+        except OSError:
+            pass
+
+        json_obj = {
+            "turns" : self.all_turns,
+            "num_players" : self.punters,
+            "map" : self.map
+        }
+
+        json_str = json.dumps(json_obj)
+        fname = os.path.join('output', self.fname + '.json')
+        with open(fname, "w") as f:
+            f.write(json_str)
+        print "SAVED GAME TO", fname, "SIZE IS", len(json_str)
+        
+
 
 
 class Interface(object):

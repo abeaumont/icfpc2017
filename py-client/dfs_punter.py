@@ -10,7 +10,7 @@ class DFSPunter(interface.Punter):
         self.dfs_stack = [m for m in self.mines]
         self.visited = {}
         print "STARTING WITH MINES", self.dfs_stack
-        
+
     def turn(self, state):
         self.log("state: %s", state)
 
@@ -31,7 +31,7 @@ class DFSPunter(interface.Punter):
                     self.visited[next_site] = True
 
                     return self.claim(next_site, neighbor)
-                    
+
 
         if len(self.available_rivers) == 0:
             return self.pass_()
@@ -39,21 +39,7 @@ class DFSPunter(interface.Punter):
             return self.claim(*self.available_rivers.pop())
 
     def stop(self, state):
-        try:
-            os.makedirs("output")
-        except OSError:
-            pass
-
-        json_obj = {
-            "turns" : self.all_turns,
-            "num_players" : self.punters
-        }
-        json_str = json.dumps(json_obj)
-        fname = os.path.join('output', self.fname, '.json')
-        with open(fname, "w") as f:
-            f.write(json_str)
-        print "SAVED GAME TO", fname, "SIZE IS", len(json_str)
-        
+        self.save_game()
 
 if __name__ == '__main__':
     import socket, sys

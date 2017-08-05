@@ -17,23 +17,7 @@ class RandPunter(interface.Punter):
             return self.claim(*self.available_rivers.pop())
 
     def stop(self, state):
-        try:
-            os.makedirs("output")
-        except OSError:
-            pass
-
-        json_obj = {
-            "turns" : self.all_turns,
-            "num_players" : self.punters
-        }
-        json_str = json.dumps(json_obj)
-        fname = os.path.join('output', self.fname + '.json')
-        if not os.path.exists('output'):
-            os.makedirs('output')
-        with open(fname, "w") as f:
-            f.write(json_str)
-        print "SAVED GAME TO", fname, "SIZE IS", len(json_str)
-        
+        self.save_game()
 
 if __name__ == '__main__':
     import socket, sys
