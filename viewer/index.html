@@ -9,7 +9,7 @@ canvas {float: left; width: 50%; }
 table { float: left; margin-left: 50%; height: calc(100% - 37px); position: absolute; width: calc(50% - 4px); }
 #file { border: 1px solid #353535; background: #8a8a8a; color: #000; padding-left: 2px }
 #log { height: 100%; }
-button { background: #9d9d9d; height: 19px; border: 1px solid #000; }
+input[type=button] { background: #9d9d9d; height: 19px; border: 1px solid #000; color: #000; }
 .sigma-scene { background: #000; }
 #scoreboard {
   /*height: calc(100% - 37px;*/
@@ -50,7 +50,7 @@ function getParameterByName(name, url) {
 }
 
 
-$(function() {
+$(function() { 
   var gameName = getParameterByName("game") || "game";
   var testGame = "../output/" + gameName + ".json";
   var turns, currentTurn;
@@ -179,9 +179,7 @@ $(function() {
       if (turn.claim) {
           var data = turn.claim;
           claim(data.punter, data.source, data.target);
-          var log = $("#log");
-          log.append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
-          log.scrollTop(log[0].scrollHeight);
+          $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
       }
       currentTurn++;
   }
@@ -214,7 +212,7 @@ $(function() {
     <div id="load">
         <form enctype="multipart/form-data" method="post">
             <input id="file" type="text" value=""/>
-            <button>Load game json</button>
+            <input type="button" value="Load game json"></input>
         </form>
     </div>
     <div id="replay">
