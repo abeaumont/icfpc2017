@@ -43,9 +43,6 @@ class DFSPunter(interface.Punter):
             elif self.visited[neighbor] != mine:
                 should_visit = True
 
-            if neighbor in self.mines:
-                should_visit = True
-
             # if we aren't connected yet, we try to connect
             if should_visit and edge in self.available_rivers:
                 score = self.distances[mine][neighbor] - sum([self.distances[m][neighbor] for m in self.mines])
