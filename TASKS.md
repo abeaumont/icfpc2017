@@ -54,24 +54,26 @@ Day 3:
 
 * put your ideas here!
 * Brute-force solver for testing on small. Make it usable near the end of games
-  as well.
+  as well. 
+* minimax+alpha-beta is best search for few moves remaining. how to adapt it for multiple players? is this correct: http://www.cplusplus.com/forum/general/118289/ ?
+* BFS from each mine intially to get vertex distances from nearest-mines (and maybe total distance to mines) (kadoban/cherim)
 * MCTS (monte carlo tree search), code template is in mcts_punter.py, just needs random_playout implemented
 * policy function (move evaluation) using up to about 50 features, optimize weights by self-play
-* possibly can then even guide the MCTS using the policy function (powerful approach)
-* BFS to find nearest mine and shortest path to it
-* Greedy rules based on how valuable each river is. Probably doomed unless we
-  come up with clever rules.
+* then able to guide the MCTS and/or alpha-beta search using the policy function
 * tit for tat: try a symmetric strategy (nim-like)
 * should we limit the opponent's opportunities as much as possible?
+* greedy
 
 ### Greedy Ideas
 
 * Do a BFS from each mine, labeling each node as its squared distance from the mine. Then during gameplay, we try to obtain the highest value nodes
-* Make an optimal play at each step -- just need score-so-far for this
+* Make an optimal play at each step by score
+* Make an optimal play at each step by score+mineDistance
 * Make a greedy algorithm that has tuneable co-efficients for optimizing
 
 ### River Features for an unclaimed river
 * go nuts here with ideas, because we could use up to about 50 features
+* (can probably afford n times BFS)
 * -- any indicator that hints anything about how valuable a river might be
 
 1. couldntPossiblyConnectToAMine/orphaned/unreachable? -- able to detect/rule out using BFS/DFS
@@ -84,12 +86,11 @@ Day 3:
 8. numRiversItWouldLink
 9. totalDistanceFromAllOfYourRivers
 10. totalDistanceFromAllOfEnemyRivers
-11. numNodesReachableFromHeadNode
-12* numNodesReachableFromTailNode
-13. totalNumberOfOutgoingRiversFromHeadAndTailNodes
-14* totalDistanceFromAllMines
-15* howLikelyToLinkMines - ?how to compute
-16* ? -- ?fast enough
+11. numNodesReachableFromNewlyAccessibleNode
+12. totalNumberOfOutgoingRiversFromHeadAndTailNodes
+13* totalDistanceFromAllMines
+14* howLikelyToLinkMines - ?how to compute
+15* ? -- ?fast enough
 
 ###### Terms
 * -r-: unclaimed river/blue river r
