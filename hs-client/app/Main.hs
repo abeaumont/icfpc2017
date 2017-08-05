@@ -2,7 +2,7 @@ module Main where
 
 import Data.Aeson
 import qualified Data.ByteString.Lazy as BS (toStrict)
-import qualified Data.ByteString as BS (length, tail)
+import qualified Data.ByteString as BS (concat, length, tail)
 import Data.ByteString.Char8 (append, cons, pack, unpack, readInt)
 import Network.Socket hiding (send, sendTo, recv, recvFrom)
 import Network.Socket.ByteString (send, recv)
@@ -16,19 +16,29 @@ sendJSON :: ToJSON a => Socket -> a -> IO ()
 sendJSON sock v = do
     let msg = BS.toStrict $ encode v
     let rawmsg = append (pack $ show (BS.length msg)) $ cons ':' msg
-    putStr "Sending "
-    putStrLn $ unpack rawmsg
+    putStrLn $ "Sending " ++ unpack rawmsg
     send sock rawmsg
     return ()
 
+recvLength :: Socket -> IO Int
+recvLength sock = run "" where
+    run acc = do
+        char <- recv sock 1
+        case unpack char of
+            ":" -> return $ read $ reverse acc
+            [d] -> run (d:acc)
+
+recvTotal sock len = run len [] where
+    run 0 acc = return $ BS.concat $ reverse acc
+    run len acc = do
+        chunk <- recv sock len
+        run (len - BS.length chunk) (chunk:acc)
+
 recvJSON :: FromJSON a => Socket -> IO a
 recvJSON sock = do
-    let buffer = 1048576
-    rawmsg <- recv sock buffer
-    let Just (_, withColon) = readInt rawmsg
-    let msg = BS.tail withColon
-    putStr "Receiving "
-    putStrLn $ unpack msg
+    buffer <- recvLength sock
+    msg <- recvTotal sock buffer
+    putStrLn $ "Receiving " ++ unpack msg
     let Just res = decodeStrict msg
     return res
 
