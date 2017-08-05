@@ -111,15 +111,16 @@ function prevTurn() {
 }
 
 function nextTurn() {
-    if (currentTurn == turns.length)
+    if (currentTurn == turns.length) {
         return;
+    }
     turn = turns[currentTurn];
     if (turn.claim) {
         var data = turn.claim;
         claim(data.punter, data.source, data.target);
         $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " has claimed " + data.source + "->" + data.target));
-        currentTurn++;
     }
+    currentTurn++;
 }
 
 $(function() {
