@@ -62,6 +62,9 @@ class Punter(object):
     def pass_(self):
         return {'pass': {'punter': self.punter}}
 
+    def log(self, message, *args):
+        print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
+
     def upkeep_punter(self, state):
         if 'move' in state:
             moves = state['move']['moves']
@@ -92,7 +95,7 @@ class Punter(object):
         fname = os.path.join('output', self.fname + '.json')
         with open(fname, "w") as f:
             f.write(json_str)
-        self.log("SAVED GAME TO %s SIZE IS %d", game_url(fname), len(json_str))
+        self.log("SAVED GAME TO {} SIZE IS {}".format(game_url(fname), len(json_str)))
 
 
 class Interface(object):
@@ -123,7 +126,7 @@ class Interface(object):
         self._send({'me': self.name})
         self._recv()
         init = self._recv()
-        self.log(init)
+        self.log("init: %s", str(init))
         self._send({'ready': init['punter']})
         self.punter = self.punter_class(self.name, init)
         while True:
