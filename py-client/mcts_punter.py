@@ -2,7 +2,10 @@ import interface
 import random
 
 def play_the_rest_of_the_game_randomly():
-    #TODO 
+    # TODO 
+    # try to put a policy (move evaluation/probability) function in here too, 
+    # one that gives each move a random score for now,
+    # so that later we can put a smarter policy
     pass
 
 def won_the_simulation():
