@@ -93,8 +93,8 @@ class Game():
 
             # end of turn book keeping
             player_turn += 1
-        for i in range(players):
-            round.append(player.stop(round))
+        for p in self.players.values():
+            round.append(p.stop(round))
             round.pop(0)
 
         print "ENDING GAME!"
