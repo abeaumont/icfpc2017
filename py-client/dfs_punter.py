@@ -37,7 +37,16 @@ class DFSPunter(interface.Punter):
             else:
                 edge = (next_site, neighbor)
 
-            if (not neighbor in self.visited or neighbor in self.mines) and edge in self.available_rivers:
+            should_visit = False
+            if not neighbor in self.visited:
+                should_visit = True
+            elif self.visited[neighbor] != mine:
+                should_visit = True
+
+            if neighbor in self.mines:
+                should_visit = True
+
+            if should_visit and edge in self.available_rivers:
                 score = self.distances[mine][neighbor]
                 this_score = self.distances[mine][next_site]
 
@@ -45,8 +54,8 @@ class DFSPunter(interface.Punter):
                 heapq.heappush(self.dfs_stack, (score, neighbor, mine) )
 
                 if consider_visit:
-                    self.visited[neighbor] = True
-                    self.visited[next_site] = True
+                    self.visited[neighbor] = mine
+                    self.visited[next_site] = mine
 
                 return self.claim(*edge)
 
