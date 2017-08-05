@@ -7,7 +7,9 @@ a { color: #ddd; }
 input { background: #888; border:1px solid #aaa; color: #fff;}
 canvas {float: left; width: 50%; }
 table { float: left; margin-left: 50%; height: calc(100% - 37px); position: absolute; width: calc(50% - 4px); }
+#file { border: 1px solid #353535; background: #8a8a8a; color: #000; padding-left: 2px }
 #log { height: 100%; }
+button { background: #9d9d9d; height: 19px; border: 1px solid #000; }
 .sigma-scene { background: #000; }
 #scoreboard {
   /*height: calc(100% - 37px;*/
@@ -19,6 +21,17 @@ table { float: left; margin-left: 50%; height: calc(100% - 37px); position: abso
   margin: auto;
 }
 #graph-container { width: 50%; float: left }
+::-webkit-scrollbar {
+  width: 11px;
+  background: #ddd;
+}
+::-webkit-scrollbar-track {
+  background: #979696;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #585858;
+}
 </style>
 
 <script src="./jquery-3.2.1.min.js"></script>
@@ -199,7 +212,7 @@ $(function() {
     <div id="load">
         <form enctype="multipart/form-data" method="post">
             <input id="file" type="text" value=""/>
-            <input type="button" value="Load game json"/>
+            <button>Load game json</button>
         </form>
     </div>
     <div id="replay">
