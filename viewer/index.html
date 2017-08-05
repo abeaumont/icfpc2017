@@ -50,7 +50,7 @@ function getParameterByName(name, url) {
 }
 
 
-$(function() { 
+$(function() {
   var gameName = getParameterByName("game") || "game";
   var testGame = "../output/" + gameName + ".json";
   var turns, currentTurn;
@@ -179,7 +179,9 @@ $(function() {
       if (turn.claim) {
           var data = turn.claim;
           claim(data.punter, data.source, data.target);
-          $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
+          var log = $("#log");
+          log.append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
+          log.scrollTop(log[0].scrollHeight);
       }
       currentTurn++;
   }

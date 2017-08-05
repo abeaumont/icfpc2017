@@ -1,4 +1,5 @@
 import argparse
+import signal
 import sys
 import threading
 import json
@@ -101,6 +102,10 @@ def main():
             print "GAME SERVER DIED, EXITING"
             break
 
+def signal_handler(signal, frame):
+    print("Stopping the server")
+    sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == "__main__":
     main()

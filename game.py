@@ -24,10 +24,10 @@ class Player():
             'map': game_map})
         return self.request._recv()
 
-    def stop(self, round, score):
+    def stop(self, round, scores):
         self.request._send({"stop": {
             "moves": round,
-            "score": score
+            "scores": scores
         }})
 
 
@@ -79,7 +79,7 @@ class Game():
         turns = len(game_map["rivers"]) if 'rivers' in game_map else 0
 
         player_turn = 0
-        round = []
+        round = [{"pass": {"punter": player}} for player in range(1, players)]
         for i in range(turns):
             player = self.players[i % players]
             turn = {"pass": {"punter": player_turn}}
@@ -97,14 +97,19 @@ class Game():
 
             # end of turn book keeping
             player_turn += 1
-            mines = self.map['mines'] if 'mines' in self.map else []
-            rivers = self.map['rivers'] if 'rivers' in self.map else []
-            scores = score_game(mines,
-                                conv_rivers(rivers),
-                                to_claimed_rivers(self.all_turns))
-            for k, s in zip(sorted(self.players.keys()), scores):
-                round.append(self.players[k].stop(round, s))
-                round.pop(0)
+
+        mines = self.map['mines'] if 'mines' in self.map else []
+        rivers = self.map['rivers'] if 'rivers' in self.map else []
+        scores = [{"punter": p, "score": s}
+                  for p, s in zip(range(players),
+                                  score_game(mines,
+                                      conv_rivers(rivers),
+                                      to_claimed_rivers(self.all_turns)))]
+        #for k, s in zip(sorted(self.players.keys()), scores):
+        for p in sorted(self.players.values()):
+            p.stop(round, scores)
+            #round.append()
+            #round.pop(0)
 
         print "ENDING GAME!"
         for player in self.players.values():
