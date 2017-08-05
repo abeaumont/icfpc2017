@@ -1,13 +1,9 @@
-import json
-import os
 import interface
-import uuid
 from collections import deque
 
 class BFSPunter(interface.Punter):
     def __init__(self, name, init_state, fname=None):
         super(BFSPunter, self).__init__(name, init_state)
-        self.fname = fname if fname is not None else str(uuid.uuid4())
         self.bfs_queue = deque([m for m in self.mines])
         self.visited = {}
         print "STARTING WITH MINES", self.bfs_queue

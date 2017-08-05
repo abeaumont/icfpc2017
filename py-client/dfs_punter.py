@@ -1,7 +1,5 @@
-import json
 import os
 import interface
-import uuid
 
 
 
@@ -12,7 +10,6 @@ import uuid
 class DFSPunter(interface.Punter):
     def __init__(self, name, init_state, fname=None):
         super(DFSPunter, self).__init__(name, init_state)
-        self.fname = fname if fname is not None else str(uuid.uuid4())
         self.dfs_stack = [m for m in self.mines]
         self.visited = {}
         print "STARTING WITH MINES", self.dfs_stack

@@ -1,14 +1,9 @@
-import json
-import os
 import interface
 import random
-import uuid
 
 class RandPunter(interface.Punter):
     def __init__(self, name, init_state, fname=None):
         super(RandPunter, self).__init__(name, init_state)
-        self.fname = fname if fname is not None else str(uuid.uuid4())
-        self.all_turns = []
         random.seed()
         
     def turn(self, state):

@@ -2,11 +2,13 @@ import json
 import socket
 import sys
 import os
+import uuid
 
 from helpers import game_url
 
 class Punter(object):
     def __init__(self, name, state):
+        self.fname = fname if fname is not None else str(uuid.uuid4())
         self.state = state
         self.name = name
         self.punter = state['punter']
