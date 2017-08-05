@@ -52,3 +52,50 @@ if __name__ == '__main__':
         s.connect(('punter.inf.ed.ac.uk', int(sys.argv[1])))
     iface = interface.Interface("Random", RandPunter, s.makefile())
     iface.run()
+
+    
+    """
+    
+def add_move(src, sqr):
+  if sqr != None: 
+    q.put(sqr)
+    if parent.get(sqr) == None: parent[sqr] = src
+
+def enqueue_succs(src):
+  pos = index2d(grid.squares, src)
+  add_move( src, offs(pos, -2, -1) )
+  add_move( src, offs(pos, -2,  1) )
+  add_move( src, offs(pos, -1, -2) )
+  add_move( src, offs(pos, -1,  2) )
+  add_move( src, offs(pos,  1, -2) )
+  add_move( src, offs(pos,  1,  2) )
+  add_move( src, offs(pos,  2, -1) )
+  add_move( src, offs(pos,  2,  1) )
+
+parent = {} 
+grid = Grid()
+q = Queue()
+
+def answer(src, dst):
+  global parent, q # ...
+  #print src, dst
+  parent = {}
+  q = Queue()
+  # bfs
+  q.put(src)
+  while not q.empty():
+    print q.queue, '\n', parent, '\n'
+    node=q.get()
+    if node==dst: break
+    enqueue_succs(node)
+
+  mvs = 0
+  node = dst
+  while node != src:
+    #print node
+    node = parent.get(node)
+    mvs+=1
+  print mvs
+  return mvs
+  
+"""
