@@ -12,7 +12,7 @@
 * [ ] add skeleton for offline client
 * [ ] make game server robust
 * [ ] add greedy online client
-* [ ] brainstorm strategies [jkhl et al]
+* [ ] brainstorm strategies [all]
 * [ ] understand the limitations of what we can store in game state
 * [x] understand if all pairs shortest path is feasible (it's not)
 * [ ] implement MST based strategy
