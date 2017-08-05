@@ -2,6 +2,8 @@
 import threading
 import json
 import os
+from score import score_game
+from util import *
 
 class Player():
     def __init__(self):
@@ -93,9 +95,11 @@ class Game():
 
             # end of turn book keeping
             player_turn += 1
-        scores = [0 for _ in self.players.values()]
-        for p, s in zip(self.players.values(), scores):
-            round.append(p.stop(round, s))
+        scores = score_game(self.map[u'mines'],
+                            conv_rivers(self.map[u'rivers']),
+                            to_claimed_rivers(self.all_turns))
+        for k, s in zip(sorted(self.players.keys()), scores):
+            round.append(self.players[k].stop(round, s))
             round.pop(0)
 
         print "ENDING GAME!"
