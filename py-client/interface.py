@@ -7,7 +7,7 @@ import uuid
 from helpers import game_url
 
 class Punter(object):
-    def __init__(self, name, state):
+    def __init__(self, name, state, fname):
         self.fname = fname if fname is not None else str(uuid.uuid4())
         self.state = state
         self.name = name
