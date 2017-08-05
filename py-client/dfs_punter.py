@@ -19,8 +19,6 @@ class DFSPunter(interface.Punter):
         if 'dfs_stack' in init_state:
             self.dfs_stack = init_state['dfs_stack']
 
-        print "STARTING WITH MINES", self.dfs_stack
-
     def get_state(self):
         state = super(DFSPunter, self).get_state()
         state['visited'] = self.visited
@@ -31,26 +29,36 @@ class DFSPunter(interface.Punter):
         self.log("state: %s", state)
 
 
-        def visit(next_site, neighbor):
+        def visit(next_site, neighbor, consider_visit=True):
             if next_site > neighbor:
                 edge = (neighbor, next_site)
             else:
                 edge = (next_site, neighbor)
 
-            if not neighbor in self.visited and edge in self.available_rivers:
+            if (not neighbor in self.visited or neighbor in self.mines) and edge in self.available_rivers:
                 self.dfs_stack.append(next_site) # re-enqueue ourselves just in case
                 self.dfs_stack.append(neighbor)
-                self.visited[neighbor] = True
-                self.visited[next_site] = True
+
+                if consider_visit:
+                    self.visited[neighbor] = True
+                    self.visited[next_site] = True
 
                 return self.claim(*edge)
 
 
+        # try to grab any mines we can when the game first starts
+        for m in self.mines:
+            if m in self.visited:
+                continue
+
+            for neighbor in self.neighbors[m]:
+                ret = visit(m, neighbor)
+                if ret:
+                    return ret
 
         while len(self.dfs_stack):
             next_site = self.dfs_stack.pop()
             if next_site not in self.neighbors:
-                print "SITE", next_site, "HAS NO NEIGHBORS"
                 continue
 
             # prioritize mines we can reach
