@@ -1,4 +1,5 @@
 # this is the actual game handling code
+import datetime
 import threading
 import json
 import os
@@ -69,7 +70,8 @@ class Game():
         with open(game_map, "r") as f:
             data = f.read()
         self.map = json.loads(data)
-        print "Map: {}, rivers: {}, sites: {}, mines {}".format(
+        print "{} - map> {}, rivers: {}, sites: {}, mines {}".format(
+            datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             game_map,
             len(self.map["rivers"]) if 'rivers' in self.map else 0,
             len(self.map["sites"]) if 'sites' in self.map else 0,
@@ -110,8 +112,10 @@ class Game():
                                       conv_rivers(rivers),
                                       to_claimed_rivers(self.all_turns)))]
         #for k, s in zip(sorted(self.players.keys()), scores):
-        print 'score>', ', '.join(['{}: {}'.format(self.players[d['punter']].name, d['score'])
-                                   for d in scores])
+        print '{} - score> {}'.format(
+            datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            ', '.join(['{}: {}'.format(self.players[d['punter']].name, d['score'])
+                       for d in scores]))
         for p in sorted(self.players.values()):
             p.stop(round, scores)
             #round.append()
@@ -139,4 +143,7 @@ class Game():
         json_str = json.dumps(json_obj)
         with open(filename, "w") as f:
             f.write(json_str)
-        print "SAVED GAME TO", helpers.game_url(filename), "SIZE IS", len(json_str)
+        print "{} - save> {} ({})".format(
+            datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            helpers.game_url(filename),
+            len(json_str))
