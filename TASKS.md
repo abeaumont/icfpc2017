@@ -51,9 +51,10 @@ Day 3:
 * put your ideas here!
 * Brute-force solver for testing on small. Make it usable near the end of games
   as well.
-* MCTS (monte carlo tree search), code here: 
+* MCTS (monte carlo tree search), code template is in mcts_punter.py, just needs random_playout implemented
 * policy function (move evaluation) using up to about 50 features, optimize weights by self-play
-* possibly even guide the MCTS using the policy function
+* possibly can then even guide the MCTS using the policy function (powerful approach)
+* BFS to find nearest mine and shortest path to it
 * Greedy rules based on how valuable each river is. Probably doomed unless we
   come up with clever rules.
 * tit for tat: try a symmetric strategy (nim-like)
