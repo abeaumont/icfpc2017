@@ -25,6 +25,7 @@ class DFSPunter(interface.Punter):
             # TODO: fix this to properly do a DFS, not this awkward one
             for neighbor in self.neighbors[next_site]:
                 if not neighbor in self.visited and (next_site, neighbor) in self.available_rivers:
+                    self.dfs_stack.append(next_site) # re-enqueue ourselves just in case
                     self.dfs_stack.append(neighbor)
                     self.visited[neighbor] = True
                     self.visited[next_site] = True
