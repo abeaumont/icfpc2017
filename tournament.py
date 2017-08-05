@@ -4,9 +4,10 @@ import sys
 import threading
 import json
 import time
+import os
 
 import SocketServer
-GAME_PORT=9000
+GAME_PORT=9001
 
 import game
 
@@ -23,38 +24,36 @@ class GameHandler(SocketServer.StreamRequestHandler):
             s += c
             c = self.rfile.read(1)
         msg = self.rfile.read(int(s))
-        print '<<<', msg
         return json.loads(msg)
 
     def _send(self, msg):
         msg = json.dumps(msg)
         msg = '{}:{}'.format(len(msg), msg)
-        print '>>>', msg
         self.wfile.write(msg)
         self.wfile.flush()
 
     def handle(self):
-        print "RECEIVED NEW CLIENT"
+        #print "RECEIVED NEW CLIENT"
 
 
         # the first thing every client does is identify
 
         try:
             client_id = self._recv()
-            print "CLIENT ID RECEIVED", client_id
+            #print "CLIENT ID RECEIVED", client_id
 
             if "me" in client_id:
                 player_id = client_id["me"]
                 self._send({ "you" : player_id })
-                print "PLAYER HANDSHAKE FINISHED", player_id
+                #print "PLAYER HANDSHAKE FINISHED", player_id
                 GAME.add_player(player_id, self)
             else:
-                print "INITIAL MSG DID NOT CONTAIN 'me' HANDSHAKE, EXITING REQUEST"
+                #print "INITIAL MSG DID NOT CONTAIN 'me' HANDSHAKE, EXITING REQUEST"
                 return
 
         except Exception, e:
             print e
-            print "CLIENT DID NOT ESTABLISH HANDSHAKE PROPERLY, EXITING REQUEST"
+            #print "CLIENT DID NOT ESTABLISH HANDSHAKE PROPERLY, EXITING REQUEST"
             return
 
 
@@ -63,7 +62,7 @@ class GameHandler(SocketServer.StreamRequestHandler):
 	while self.running:
             # TODO: sleep until our game is over
             time.sleep(0.5)
-        print "ENDING GAME FOR THREAD", self
+        #print "ENDING GAME FOR THREAD", self
 
 
 SERVER=None
@@ -90,19 +89,17 @@ def start():
     return game_thread
 
 def main():
+    global GAME
     parser = argparse.ArgumentParser(description='Game Server.')
-    parser.add_argument('-m', '--map', default='maps/circle.json', help='map to use')
+    parser.add_argument('-m', '--map', default='maps/', help='map dir to use')
     parser.add_argument('-n', type=int, default=2, help='number of players')
     args = parser.parse_args()
-    MAP = args.map
-    PLAYERS = args.n
-    global GAME
-    GAME = game.Game([MAP], PLAYERS)
+
+    maps = [os.path.join(args.map, m) for m in os.listdir(args.map)]
+    GAME = game.Game(maps, args.n)
     t = start()
-
     while True:
-        t.join(0.5)
-
+        t.join()
         if not t.isAlive():
             print "GAME SERVER DIED, EXITING"
             break
