@@ -88,7 +88,7 @@ class Punter(object):
                 if c in seen:
                     continue
                 todo.append((c, d+1))
-                seen[c] = d*d
+                seen[c] = d
         return seen
 
     def upkeep_punter(self, state):
