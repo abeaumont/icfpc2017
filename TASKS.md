@@ -67,7 +67,7 @@ Day 2:
 * numNodesReachableFromTailNode
 * -- ?fast enough
 
-"link": "make an adjacent edge between"
-"connect": "make reachable (connected)"
+* "link": "make an adjacent edge between"
+* "connect": "make reachable (connected)"
 
 O(3632) rivers in examples .'. each feature in O(V^2)
