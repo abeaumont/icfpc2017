@@ -10,9 +10,21 @@ import interface
 class DFSPunter(interface.Punter):
     def __init__(self, name, init_state, fname=None):
         super(DFSPunter, self).__init__(name, init_state)
+
         self.dfs_stack = [m for m in self.mines]
         self.visited = {}
+
+        if 'visited' in init_state:
+            self.visited = init_state['visited']
+        if 'dfs_stack' in init_state:
+            self.dfs_stack = init_state['dfs_stack']
+
         print "STARTING WITH MINES", self.dfs_stack
+
+    def get_state(self):
+        state = super(DFSPunter, self).get_state()
+        state['visited'] = self.visited
+        state['dfs_stack'] = self.dfs_stack
 
     def turn(self, state):
         self.log("state: %s", state)
