@@ -9,6 +9,7 @@ import Network.Socket.ByteString (send, recv)
 import System.Environment (getArgs)
 import System.IO
 
+import AI
 import Lib
 
 sendJSON :: ToJSON a => Socket -> a -> IO ()
@@ -30,14 +31,14 @@ recvJSON sock = do
     let Just res = decodeStrict msg
     return res
 
-play :: GameState -> Socket -> IO [ScoreOf]
-play gs sock = do
+play :: Strategy -> Socket -> GameState -> IO [ScoreOf]
+play strategy sock gs = do
     msg <- recvJSON sock
     case msg of
         MessageMove moves -> do
             let newGS = makeMoves gs moves
             sendJSON sock (strategy newGS) --TODO: make some strategy
-            play newGS sock
+            play strategy sock newGS
         MessageEnd (Endgame moves scores) -> return scores
 
 client :: String -> String -> Int -> IO ()
@@ -50,7 +51,7 @@ client name host port = withSocketsDo $ do
     print (response :: Handshake)
     initGS <- recvJSON sock
     sendJSON sock (ready $ punter initGS)
-    scores <- play initGS sock
+    scores <- play dfsStrategy sock initGS
     print scores
 
 main :: IO ()

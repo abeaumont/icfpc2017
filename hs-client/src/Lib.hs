@@ -18,6 +18,13 @@ noone = 0 :: Punter
 type Site = Int
 data River = River !Site !Site
     deriving (Eq, Ord)
+
+instance Show River where
+    show (River s t) = show s ++ "->" ++ show t
+
+mkRiver s t | s < t = River s t
+            | otherwise = River t s
+
 instance FromJSON River where
     parseJSON = withObject "River" $ \v -> River <$> v .: "source" <*> v .: "target"
 
