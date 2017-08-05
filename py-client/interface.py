@@ -18,7 +18,7 @@ class Punter(object):
         self.rivers = state['map']['rivers']
         self.mines = state['map']['mines']
         if 'available_rivers' in state:
-            self.available_rivers = state['available_rivers']
+            self.available_rivers = {tuple(r) for r in state['available_rivers']}
         else:
             self.available_rivers = {(r['source'], r['target']) for r in self.rivers}
         if 'all_turns' in state:
@@ -26,7 +26,7 @@ class Punter(object):
         else:
             self.all_turns = []
         if 'neighbors' in state:
-            self.neighbors = state['neighbors']
+            self.neighbors = {k: set(v) for k,v in state['neighbors'].iteritems()}
         else:
             neighbors = {}
             for r in self.rivers:
@@ -43,10 +43,9 @@ class Punter(object):
     def get_state(self):
         """State to be saved between turns (offline mode only)"""
         state = self.state
-        state['sites'] = self.sites
-        state['available_rivers'] = self.available_rivers
+        state['available_rivers'] = list(self.available_rivers)
         state['all_turns'] = self.all_turns
-        state['neighbors'] = self.neighbors
+        state['neighbors'] = {k: list(v) for k,v in self.neighbors.iteritems()}
         return state
 
     def turn(self, state):
@@ -187,13 +186,19 @@ class OfflineInterface(object):
             except Exception as e:
                 self.log('error: %s', str(e))
         elif 'move' in msg:
-            self.punter = self.punter_class(self.name, msg['state'])
-            self.punter.upkeep_punter(msg)
-            msg = self.punter.turn(msg)
-            msg['state'] = self.punter.get_state()
-            self._send(msg)
+            try:
+                self.punter = self.punter_class(self.name, msg['state'])
+                self.punter.upkeep_punter(msg)
+                msg = self.punter.turn(msg)
+                msg['state'] = self.punter.get_state()
+                self._send(msg)
+            except Exception as e:
+                self.log('error: %s', str(e))
         elif 'stop' in msg:
-            self.punter = self.punter_class(self.name, msg['state'])
-            self.punter.upkeep_punter(msg)
-            self.punter.stop(msg)
+            try:
+                self.punter = self.punter_class(self.name, msg['state'])
+                self.punter.upkeep_punter(msg)
+                self.punter.stop(msg)
+            except Exception as e:
+                self.log('error: %s', str(e))
         self.fd.close()
