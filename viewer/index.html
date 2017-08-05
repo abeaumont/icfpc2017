@@ -1,5 +1,26 @@
 <!DOCTYPE html>
 <html>
+
+<style>
+body { background: #555; margin: 0; }
+a { color: #ddd; }
+input { background: #888; border:1px solid #aaa; color: #fff;}
+canvas {float: left; width: 50%; }
+table { float: left; margin-left: 50%; height: calc(100% - 37px); position: absolute; width: calc(50% - 4px); }
+#log { height: 100%; }
+.sigma-scene { background: #000; }
+#scoreboard { 
+  /*height: calc(100% - 37px;*/
+}
+#graph-container {
+  max-width: 800px;
+  height: calc(100% - 37px);
+  position: absolute;
+  margin: auto;
+}
+#graph-container { width: 50%; float: left }
+</style>
+
 <script src="./jquery-3.2.1.min.js"></script>
 <script src="./sigma.min.js"></script>
 <script type="text/javascript">
@@ -10,7 +31,14 @@ var sWrap;
 var mines;
 var rivers = {};
 
-var colors = ["#00cc00", "#0000cc", "#aaaa00", "#aa00aa", "#00aaaa"];
+//var colors = ["#00cc00", "#0000cc", "#aaaa00", "#aa00aa", "#00aaaa"];
+//var colors = ["#00cc00", "#0000cc", "aaaa00", "aa00aa", "00aaaa"];
+//var colors = ["#00ff00", "#0000ff", "aaaa00", "aa00aa", "00aaaa"];
+var colors = ["#1f77b4", "#aec7e8", "#aaaa00", "#aa00aa", "#00aaaa"];
+//var edgeColor = '#000';
+var edgeColor = '#009';//blue uncl river
+var mineColor = '#f00';//red mine
+var siteColor = '#fff';//white site
 
 function initGame(players) {
     rivers = {};
@@ -28,11 +56,11 @@ function claim(player, source, target) {
     var edge = sWrap.graph.edges(river);
     edge.color = colors[player + 1];
     if (player === null) {
-        edge.color = "#000000";
-        edge.size = 0.5;
+        edge.color = edgeColor;
+        edge.size = 2;
     } else {
         edge.color = colors[player];
-        edge.size = 5;
+        edge.size = 10;
     }
     sWrap.refresh();
 }
@@ -43,17 +71,20 @@ function mapToSigma(obj) {
     console.log(mines);
     for (var n of res.nodes) {
         if (mines.has(n.id)) {
-            n.size = 5;
-            n.color = "#2200cc";
+            n.size = 10;
+            //n.color = "#2200cc"; // ?
+            n.color = mineColor;
         } else {
             n.size = 3;
-            n.color = "#000000";
+            n.color = siteColor;//edgeColor;
         }
     }
     for (var i in res.edges) {
         var edge = res.edges[i];
+        //edge.size = 0.5;
+        edge.size = 2;
+        edge.color = edgeColor;
         edge.id = i;
-        edge.size = 0.5;
         rivers[edge.source + ";" + edge.target] = i;
     }
     return res;
@@ -118,7 +149,8 @@ function nextTurn() {
     if (turn.claim) {
         var data = turn.claim;
         claim(data.punter, data.source, data.target);
-        $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " has claimed " + data.source + "->" + data.target));
+        $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
+        currentTurn++;
     }
     currentTurn++;
 }
@@ -142,6 +174,7 @@ $(function() {
 });
 
 </script>
+
 <head>
     <title>LambdaPunt state viewer</title>
 </head>
@@ -149,7 +182,7 @@ $(function() {
     <div id="load">
         <form enctype="multipart/form-data" method="post">
             <input id="file" type="text" value="game"/>
-            <input type="button" value="Load"/>
+            <input type="button" value="Load game json"/>
         </form>
     </div>
     <div id="replay">
@@ -158,21 +191,19 @@ $(function() {
         <a id="forward" href="#forward">step </a>&nbsp;
         <a href="#end">end</a>
     </div>
-    <style>
-
-    #graph-container {
-        max-width: 800px; height: 600px; margin: auto;
-    }
-
-  </style>
     <div id="graph-container">
     </div>
     <table border="1"><tr>
-        <td>
+        <!--<td>
             <table id="scoreboard"><tr><th>Player</th><th>Score</th></tr></table>
-        </td>
-        <td width="100%">
-            <div id="log" style="height: 240px; width=100%; overflow-y: scroll"></div>
+        </td> -->
+        <td width="100%" style="vertical-align: top; background: #747474">
+            <div id="log" 
+                 style="height: calc(100% -25px); width=100%; overflow-y: auto">
+            </div>
+            <!--<div id="log" 
+                 style="height: 240px; width=100%; overflow-y: scroll">
+            </div>-->
         </td>
     </tr></table>
 </body>
