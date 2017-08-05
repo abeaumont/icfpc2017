@@ -12,6 +12,7 @@ def won_the_simulation():
     #TODO
     return True
 
+# Credit: Mårten Wiman
 def MCTS(state):
     if state.numberOfSimulations == 0:
 
