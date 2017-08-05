@@ -20,10 +20,10 @@ class Player():
             'map': game_map})
         return self.request._recv()
 
-    def stop(self, round):
+    def stop(self, round, score):
         self.request._send({"stop": {
             "moves": round,
-            "score": 0
+            "score": score
         }})
 
 
@@ -93,8 +93,9 @@ class Game():
 
             # end of turn book keeping
             player_turn += 1
-        for p in self.players.values():
-            round.append(p.stop(round))
+        scores = [0 for _ in self.players.values()]
+        for p, s in zip(self.players.values(), scores):
+            round.append(p.stop(round, s))
             round.pop(0)
 
         print "ENDING GAME!"
