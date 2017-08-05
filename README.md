@@ -1,3 +1,10 @@
+*NOTE* Do _not_ use `print` for debugging purposes.
+Offline mode uses stdio for bot communication so it won't work.
+use `self.log` instead, like:
+```python
+self.log('whatever: {} and {}'.format(a, b))
+```
+
 # to run a game
 
 * game server: `python server.py`
@@ -12,9 +19,10 @@ $ bash play.sh <bot1> <bot2>
 ## defbot = py-clients/rand_punter.py   defmap = maps/circle.json  gonna do specified maps later
 ```
 
-*NOTE* Do _not_ use `print` for debugging purposes.
-Offline mode uses stdio for bot communication so it won't work.
-use `self.log` instead, like:
-```python
-self.log('whatever: {} and {}'.format(a, b))
-```
+# to run a game in offline mode
+
+* you need lambda-duct installed
+* you can use either our server or online servers
+* game server: `python server.py`
+* client against local server (from `py-client`): `lamduct --game-hostname localhost --game-port 9000 --log-level 3 ./rand.sh`
+* client against remote server (from `py-client`): `lamduct --game-port 9009 --log-level 3 ./rand.sh`
