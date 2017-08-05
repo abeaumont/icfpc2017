@@ -59,6 +59,7 @@ class Punter(object):
         state['available_rivers'] = list(self.available_rivers)
         state['all_turns'] = self.all_turns
         state['neighbors'] = {k: list(v) for k,v in self.neighbors.iteritems()}
+        state['distances'] = self.distances
         return state
 
     def turn(self, state):
