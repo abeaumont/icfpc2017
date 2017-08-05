@@ -31,27 +31,39 @@ class DFSPunter(interface.Punter):
         self.log("state: %s", state)
 
 
+        def visit(next_site, neighbor):
+            if next_site > neighbor:
+                edge = (neighbor, next_site)
+            else:
+                edge = (next_site, neighbor)
+
+            if not neighbor in self.visited and edge in self.available_rivers:
+                self.dfs_stack.append(next_site) # re-enqueue ourselves just in case
+                self.dfs_stack.append(neighbor)
+                self.visited[neighbor] = True
+                self.visited[next_site] = True
+
+                return self.claim(*edge)
+
+
+
         while len(self.dfs_stack):
             next_site = self.dfs_stack.pop()
             if next_site not in self.neighbors:
                 print "SITE", next_site, "HAS NO NEIGHBORS"
                 continue
 
+            # prioritize mines we can reach
             for neighbor in self.neighbors[next_site]:
-                if next_site > neighbor:
-                    edge = (neighbor, next_site)
-                else:
-                    edge = (next_site, neighbor)
+                if neighbor in self.mines:
+                    ret = visit(next_site, neighbor)
+                    if ret:
+                        return ret
 
-                if not neighbor in self.visited and edge in self.available_rivers:
-                    self.dfs_stack.append(next_site) # re-enqueue ourselves just in case
-                    self.dfs_stack.append(neighbor)
-                    self.visited[neighbor] = True
-                    self.visited[next_site] = True
-
-
-                    return self.claim(*edge)
-
+            for neighbor in self.neighbors[next_site]:
+                ret = visit(next_site, neighbor)
+                if ret:
+                    return ret
 
         if len(self.available_rivers) == 0:
             return self.pass_()
