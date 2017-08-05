@@ -46,8 +46,6 @@ class BFSPunter(interface.Punter):
         else:
             return self.claim(*self.available_rivers.pop())
 
-    def stop(self, state):
-        self.save_game()
 
 if __name__ == '__main__':
     import socket, sys

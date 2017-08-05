@@ -6,14 +6,45 @@ import os
 from helpers import game_url
 
 class Punter(object):
-    def __init__(self, name, init_state):
+    def __init__(self, name, state):
+        self.state = state
         self.name = name
-        self.punter = init_state['punter']
-        self.punters = init_state['punters']
-        self.map = init_state['map']
-        self.sites = {s['id'] for s in init_state['map']['sites']}
-        self.rivers = init_state['map']['rivers']
-        self.mines = init_state['map']['mines']
+        self.punter = state['punter']
+        self.punters = state['punters']
+        self.map = state['map']
+        self.sites = {s['id'] for s in state['map']['sites']}
+        self.rivers = state['map']['rivers']
+        self.mines = state['map']['mines']
+        if 'available_rivers' in state:
+            self.available_rivers = state['available_rivers']
+        else:
+            self.available_rivers = {(r['source'], r['target']) for r in self.rivers}
+        if 'all_turns' in state:
+            self.all_turns = state['all_turns']
+        else:
+            self.all_turns = []
+        if 'neighbors' in state:
+            self.neighbors = state['neighbors']
+        else:
+            neighbors = {}
+            for r in self.rivers:
+                s,d = r['source'], r['target']
+                if not s in neighbors:
+                    neighbors[s] = set()
+                if not d in neighbors:
+                    neighbors[d] = set()
+
+                neighbors[s].add(d)
+                neighbors[d].add(s)
+            self.neighbors = neighbors
+
+    def get_state(self):
+        """State to be saved between turns (offline mode only)"""
+        state = self.state
+        state['sites'] = self.sites
+        state['available_rivers'] = self.available_rivers
+        state['all_turns'] = self.all_turns
+        state['neighbors'] = self.neighbors
 
     def turn(self, state):
         """Your logic per turn goes here"""
@@ -30,6 +61,21 @@ class Punter(object):
 
     def log(self, message, *args):
         print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
+
+
+    def upkeep_punter(self, state):
+        if 'move' in state:
+            moves = state['move']['moves']
+        elif 'stop' in state:
+            moves = state['stop']['moves']
+
+        self.all_turns.extend(moves)
+        for m in moves:
+            if m and 'claim' in m:
+                s = m['claim']['source']
+                t = m['claim']['target']
+                self.available_rivers.discard((s, t))
+                self.available_rivers.discard((t, s))
 
     def save_game(self):
         try:
@@ -49,9 +95,7 @@ class Punter(object):
             f.write(json_str)
         print "SAVED GAME TO", game_url(fname), "SIZE IS", len(json_str)
         
-
-
-
+        
 class Interface(object):
     def __init__(self, name, punter_class, server):
         self.name = name
@@ -73,39 +117,6 @@ class Interface(object):
             raise EOFError()
         return json.loads(line.split(':', 1)[1])
 
-    def setup_punter(self, punter):
-        punter.all_turns = []
-        punter.available_rivers = {(r['source'], r['target']) for r in punter.rivers}
-
-        neighbors = {}
-        for r in punter.rivers:
-            s,d = r['source'], r['target']
-            if not s in neighbors:
-                neighbors[s] = set()
-            if not d in neighbors:
-                neighbors[d] = set()
-
-            neighbors[s].add(d)
-            neighbors[d].add(s)
-        punter.neighbors = neighbors
-
-    def upkeep_punter(self, punter, state):
-        if 'move' in state:
-            moves = state['move']['moves']
-        elif 'stop' in state:
-            moves = state['stop']['moves']
-
-        punter.all_turns.extend(moves)
-        for m in moves:
-            if m and 'claim' in m:
-                s = m['claim']['source']
-                t = m['claim']['target']
-                punter.available_rivers.discard((s, t))
-                punter.available_rivers.discard((t, s))
-
-
-
-
     def run(self):
         self._send({'me': self.name})
         self._recv()
@@ -113,12 +124,9 @@ class Interface(object):
         print init
         self._send({'ready': init['punter']})
         self.punter = self.punter_class(self.name, init)
-
-        self.setup_punter(self.punter)
-
         while True:
             state = self._recv()
-            self.upkeep_punter(self.punter, state)
+            self.punter.upkeep_punter(state)
 
             if 'stop' in state:
                 self.punter.stop(state)
@@ -128,3 +136,30 @@ class Interface(object):
             turn = self.punter.turn(state)
             self._send(turn)
 
+
+class OfflineInterface(object):
+    def __init__(self, name, punter_class):
+        self.name = name
+        self.punter_class = punter_class
+        self.punter = None
+
+    def run(self):
+        self._send({'me': self.name})
+        self._recv()
+        msg = self._recv()
+        if 'punter' in msg:
+            self.punter = self.punter_class(self.name, msg)
+            self._send({
+                'ready': init['punter'],
+                'state': self.punter.get_state()
+            })
+        elif 'move' in msg:
+            self.punter = self.punter_class(self.name, msg['state'])
+            self.punter.upkeep_punter(msg)
+            msg = self.punter.turn(msg)
+            msg['state'] = self.punter.get_state()
+            self._send(msg)
+        elif 'stop' in msg:
+            self.punter = self.punter_class(self.name, msg['state'])
+            self.punter.upkeep_punter(msg)
+            self.punter.stop(msg)
