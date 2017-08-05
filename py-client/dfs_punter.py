@@ -13,7 +13,7 @@ class DFSPunter(interface.Punter):
         super(DFSPunter, self).__init__(name, init_state)
 
         # the dfs stack is: score, node, originating mine
-        self.dfs_stack = [(1, m, m) for m in self.mines]
+        self.dfs_stack = []
         self.visited = {}
 
         if 'visited' in init_state:
@@ -51,6 +51,13 @@ class DFSPunter(interface.Punter):
                 score = self.distances[mine][neighbor]**2 - sum([self.distances[m][neighbor] for m in self.mines])
                 this_score = self.distances[mine][next_site]**2 - sum([self.distances[m][next_site] for m in self.mines])
 
+                if next_site in self.visited and self.visited[next_site] != mine:
+                    for node in self.visited:
+                        if self.visited[node] == self.visited[next_site]:
+                            self.visited[node] = mine
+
+                    this_score = abs(max(this_score, 10) * this_score)
+
                 heapq.heappush(self.dfs_stack, (this_score, next_site, mine) )
                 heapq.heappush(self.dfs_stack, (score, neighbor, mine) )
 
@@ -66,7 +73,15 @@ class DFSPunter(interface.Punter):
             if m in self.visited:
                 continue
 
+            # we should order the neighbors based on their distance from all
+            # the other mines
+            neighbor_scores = {}
             for neighbor in self.neighbors[m]:
+                neighbor_scores[neighbor] = 0
+                for mm in self.mines:
+                    neighbor_scores[neighbor] += self.distances[mm][neighbor]
+
+            for neighbor in sorted(self.neighbors[m], key=lambda n: neighbor_scores[n]):
                 ret = visit(m, m, neighbor)
                 if ret:
                     return ret
@@ -75,13 +90,6 @@ class DFSPunter(interface.Punter):
             next_score, next_site, mine = self.dfs_stack.pop()
             if next_site not in self.neighbors:
                 continue
-
-            # prioritize mines we can reach
-            for neighbor in self.neighbors[next_site]:
-                if neighbor in self.mines:
-                    ret = visit(mine, next_site, neighbor)
-                    if ret:
-                        return ret
 
             for neighbor in self.neighbors[next_site]:
                 ret = visit(mine, next_site, neighbor)
