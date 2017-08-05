@@ -66,12 +66,12 @@ Day 3:
 * Make an optimal play at each step
 * Make a greedy algorithm that has tuneable co-efficients for optimizing
 
-### River Features (heuristics)
-* couldntPossiblyConnectToAMine/orphaned/unreachable -- able to detect rule out using BFS/DFS
-* isMineEdge
+### River Features for an unclaimed river
+* couldntPossiblyConnectToAMine/orphaned/unreachable -- able to detect/rule out using BFS/DFS
+* isAdjacentToMine
 * wouldLink2Mines
 * isBridge/bridgeValue/isTheOnlyRiverToSubGraphConnectedComponentOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
-* distanceFromMines
+* totalDistanceFromAllMines
 * howLikelyToLinkMines - ?how to compute
 * numRiversItWouldLink
 * totalNumberOfOutgoingRiversFromHeadAndTailNodes
@@ -86,4 +86,4 @@ Day 3:
 * "link" (nn/vb): "is-claimed/claim an adjacent edge between" eg: 1=r=2  r is a link from 1 to 2
 * "bridge" (nn/vb): "is-reachable/make reachable (connected)" eg 1===2-r-3===4 r is an unclaimed bridge from 1 to 4
 
-O(3632) rivers in examples .'. each feature in O(V^2)
+O(3632) rivers in examples, 2s movetimelimit .'. features in O(V^2)
