@@ -51,8 +51,8 @@ class DFSPunter(interface.Punter):
 
                 for m in self.mines:
                     if m is not mine and m in self.visited and self.visited[m] == m:
-                        score -= self.distances[m][neighbor]
-                        this_score -= self.distances[m][next_site]
+                        score -= self.distances[m][neighbor]**2
+                        this_score -= self.distances[m][next_site]**2
                     else:
                         score += self.distances[m][neighbor]**2
                         this_score += self.distances[m][next_site]**2
@@ -102,8 +102,6 @@ class DFSPunter(interface.Punter):
                 continue
 
             neighbors = list(self.neighbors[next_site])
-            random.shuffle(neighbors)
-
             for neighbor in neighbors:
                 ret = visit(mine, next_site, neighbor)
                 if ret:
