@@ -89,13 +89,19 @@ class Interface(object):
         punter.neighbors = neighbors
 
     def upkeep_punter(self, punter, state):
-        punter.all_turns.extend(state['move']['moves'])
-        for m in state['move']['moves']:
+        if 'move' in state:
+            moves = state['move']['moves']
+        elif 'stop' in state:
+            moves = state['stop']['moves']
+
+        punter.all_turns.extend(moves)
+        for m in moves:
             if 'claim' in m:
                 s = m['claim']['source']
                 t = m['claim']['target']
                 punter.available_rivers.discard((s, t))
                 punter.available_rivers.discard((t, s))
+
 
 
 
@@ -111,11 +117,12 @@ class Interface(object):
 
         while True:
             state = self._recv()
+            self.upkeep_punter(self.punter, state)
+
             if 'stop' in state:
                 self.punter.stop(state)
                 break
 
-            self.upkeep_punter(self.punter, state)
 
             turn = self.punter.turn(state)
             self._send(turn)
