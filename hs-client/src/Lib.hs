@@ -16,17 +16,7 @@ ready punter = object ["ready" .= punter]
 type Punter = Int
 noone = 0 :: Punter
 type Site = Int
-data River = River !Site !Site
-    deriving (Eq, Ord)
-
-instance Show River where
-    show (River s t) = show s ++ "->" ++ show t
-
-mkRiver s t | s < t = River s t
-            | otherwise = River t s
-
-instance FromJSON River where
-    parseJSON = withObject "River" $ \v -> River <$> v .: "source" <*> v .: "target"
+type River = (Site, Site)
 
 data GameState = GS
     { punter :: !Punter
@@ -36,13 +26,18 @@ data GameState = GS
     , claimed :: !(M.Map River Punter)
     }
 
+data JsonRiver = JR Site Site
+instance FromJSON JsonRiver where
+    parseJSON = withObject "River" $ \v -> JR <$> v .: "source" <*> v .: "target"
+
 instance FromJSON GameState where
     parseJSON = withObject "GameState" $ \v -> do
         mapObj <- v .: "map"
         punter <- v .: "punter"
         punters <- v .: "punters"
         mines <- mapObj .: "mines"
-        rivers <- mapObj .: "rivers"
+        jrivers <- mapObj .: "rivers"
+        let rivers = map (\(JR s t) -> (s, t)) jrivers
         return $ GS punter punters (S.fromList mines) (S.fromList rivers) M.empty
 
 newtype Handshake = Handshake String
@@ -58,14 +53,14 @@ instance FromJSON Move where
         punter <- move .: "punter"
         source <- move .: "source"
         target <- move .: "target"
-        return $ Claim punter (River source target))
+        return $ Claim punter (source, target))
         <|> (do
         move <- v .: "pass"
         punter <- move .: "punter"
         return $ Pass punter)
 
 instance ToJSON Move where
-    toJSON (Claim punter (River source target)) =
+    toJSON (Claim punter (source, target)) =
         object ["claim" .= object ["punter" .= punter, "source" .= source, "target" .= target]]
     toJSON (Pass punter) =
         object ["pass" .= object ["punter" .= punter]]
