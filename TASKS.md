@@ -65,7 +65,8 @@ Day 2:
 * totalNumberOfOutgoingRiversFromHeadAndTailNodes
 * numNodesReachableFromHeadNode
 * numNodesReachableFromTailNode
-* -- ?fast enough
+* ? -- ?fast enough
+
 
 * "link": "make an adjacent edge between"
 * "connect": "make reachable (connected)"
