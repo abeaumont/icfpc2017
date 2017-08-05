@@ -110,7 +110,8 @@ class Game():
                                       conv_rivers(rivers),
                                       to_claimed_rivers(self.all_turns)))]
         #for k, s in zip(sorted(self.players.keys()), scores):
-        print 'score>', ', '.join(['{}: {}'.format(d['punter'], d['score']) for d in scores])
+        print 'score>', ', '.join(['{}: {}'.format(self.players[d['punter']].name, d['score'])
+                                   for d in scores])
         for p in sorted(self.players.values()):
             p.stop(round, scores)
             #round.append()
