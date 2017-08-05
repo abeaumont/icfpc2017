@@ -66,16 +66,18 @@ Day 3:
 ### Greedy Ideas
 
 * Do a BFS from each mine, labeling each node as its squared distance from the mine. Then during gameplay, we try to obtain the highest value nodes
-* Make an optimal play at each step
+* Make an optimal play at each step -- just need score-so-far for this
 * Make a greedy algorithm that has tuneable co-efficients for optimizing
 
 ### River Features for an unclaimed river
-* guys, go nuts here with ideas, because we could use up to about 50 features
+* go nuts here with ideas, because we could use up to about 50 features (11 so far)
 * -- any indicator that hints anything about how valuable a river might be
-* couldntPossiblyConnectToAMine/orphaned/unreachable -- able to detect/rule out using BFS/DFS
-* isAdjacentToMine
-* wouldLink2Mines
-* isBridge/bridgeValue/isTheOnlyRiverToSubGraphConnectedComponentOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
+* couldntPossiblyConnectToAMine/orphaned/unreachable? -- able to detect/rule out using BFS/DFS
+* directScoreIncreaseValue
+* directOpponentScoreDenialValue
+* isAdjacentToMine?
+* wouldLink2Mines?
+* isBridge?/bridgeValue/isTheOnlyRiverToSubGraphConnectedComponentOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
 * totalDistanceFromAllMines
 * howLikelyToLinkMines - ?how to compute
 * numRiversItWouldLink
