@@ -36,6 +36,8 @@ class RandPunter(interface.Punter):
         }
         json_str = json.dumps(json_obj)
         fname = os.path.join('output', self.fname + '.json')
+        if not os.path.exists('output'):
+            os.makedirs('output')
         with open(fname, "w") as f:
             f.write(json_str)
         print "SAVED GAME TO", fname, "SIZE IS", len(json_str)
