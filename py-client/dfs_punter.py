@@ -14,7 +14,6 @@ class DFSPunter(interface.Punter):
     def turn(self, state):
         self.log("state: %s", state)
 
-        print "NEIGHBORS", self.neighbors
 
         while len(self.dfs_stack):
             next_site = self.dfs_stack.pop()
@@ -22,15 +21,23 @@ class DFSPunter(interface.Punter):
                 print "SITE", next_site, "HAS NO NEIGHBORS"
                 continue
 
+
+
             # TODO: fix this to properly do a DFS, not this awkward one
             for neighbor in self.neighbors[next_site]:
-                if not neighbor in self.visited and (next_site, neighbor) in self.available_rivers:
+                if next_site > neighbor:
+                    edge = (neighbor, next_site)
+                else:
+                    edge = (next_site, neighbor)
+
+                if not neighbor in self.visited and edge in self.available_rivers:
                     self.dfs_stack.append(next_site) # re-enqueue ourselves just in case
                     self.dfs_stack.append(neighbor)
                     self.visited[neighbor] = True
                     self.visited[next_site] = True
 
-                    return self.claim(next_site, neighbor)
+
+                    return self.claim(*edge)
 
 
         if len(self.available_rivers) == 0:
