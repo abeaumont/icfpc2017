@@ -98,20 +98,20 @@ class Game():
             # end of turn book keeping
             player_turn += 1
 
-        # END GAME LOOP
-
-
-        # DONT INDENT THIS.
-        print "ENDING GAME!"
         mines = self.map['mines'] if 'mines' in self.map else []
         rivers = self.map['rivers'] if 'rivers' in self.map else []
-        scores = score_game(mines,
-                            conv_rivers(rivers),
-                            to_claimed_rivers(self.all_turns))
-        for k, s in zip(sorted(self.players.keys()), scores):
-            round.append(self.players[k].stop(round, s))
-            round.pop(0)
+        scores = [{"punter": p, "score": s}
+                  for p, s in zip(range(players),
+                                  score_game(mines,
+                                      conv_rivers(rivers),
+                                      to_claimed_rivers(self.all_turns)))]
+        #for k, s in zip(sorted(self.players.keys()), scores):
+        for p in sorted(self.players.values()):
+            p.stop(round, scores)
+            #round.append()
+            #round.pop(0)
 
+        print "ENDING GAME!"
         for player in self.players.values():
             player.request.running = False
 
