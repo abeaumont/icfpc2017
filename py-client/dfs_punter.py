@@ -25,6 +25,7 @@ class DFSPunter(interface.Punter):
         state = super(DFSPunter, self).get_state()
         state['visited'] = self.visited
         state['dfs_stack'] = self.dfs_stack
+        return state
 
     def turn(self, state):
         self.log("state: %s", state)
