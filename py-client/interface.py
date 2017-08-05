@@ -14,9 +14,9 @@ class Punter(object):
         self.punter = state['punter']
         self.punters = state['punters']
         self.map = state['map']
-        self.sites = {s['id'] for s in state['map']['sites']}
-        self.rivers = state['map']['rivers']
-        self.mines = state['map']['mines']
+        self.sites = {s['id'] for s in state['map'].get('sites', [])}
+        self.rivers = state['map'].get('rivers', [])
+        self.mines = state['map'].get('mines', [])
         if 'available_rivers' in state:
             self.available_rivers = {tuple(r) for r in state['available_rivers']}
         else:

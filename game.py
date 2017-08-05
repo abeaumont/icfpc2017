@@ -47,9 +47,9 @@ class Game():
         self.map = json_map
         self.num_players = num_players
 
-        print "MAP HAS %s RIVERS" % (len(json_map["rivers"]))
-        print "MAP HAS %s SITES" % (len(json_map["sites"]))
-        print "MAP HAS %s MINES" % (len(json_map["mines"]))
+        print "MAP HAS %s RIVERS" % (len(json_map["rivers"]) if 'rivers' in json_map else 0)
+        print "MAP HAS %s SITES" % (len(json_map["sites"]) if 'sites' in json_map else 0)
+        print "MAP HAS %s MINES" % (len(json_map["mines"]) if 'mines' in json_map else 0)
 
     def add_player(self, player_name, player_request):
         with self.l:
@@ -76,7 +76,7 @@ class Game():
 
         for player in self.players.values():
             player.get_ready(players, game_map)
-        turns = len(game_map["rivers"])
+        turns = len(game_map["rivers"]) if 'rivers' in game_map else 0
 
         player_turn = 0
         round = []
@@ -97,12 +97,14 @@ class Game():
 
             # end of turn book keeping
             player_turn += 1
-        scores = score_game(self.map[u'mines'],
-                            conv_rivers(self.map[u'rivers']),
-                            to_claimed_rivers(self.all_turns))
-        for k, s in zip(sorted(self.players.keys()), scores):
-            round.append(self.players[k].stop(round, s))
-            round.pop(0)
+            mines = self.map['mines'] if 'mines' in self.map else []
+            rivers = self.map['rivers'] if 'rivers' in self.map else []
+            scores = score_game(mines,
+                                conv_rivers(rivers),
+                                to_claimed_rivers(self.all_turns))
+            for k, s in zip(sorted(self.players.keys()), scores):
+                round.append(self.players[k].stop(round, s))
+                round.pop(0)
 
         print "ENDING GAME!"
         for player in self.players.values():
