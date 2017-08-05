@@ -23,7 +23,8 @@ sendJSON sock v = do
 
 recvJSON :: FromJSON a => Socket -> IO a
 recvJSON sock = do
-    rawmsg <- recv sock 4096
+    let buffer = 1048576
+    rawmsg <- recv sock buffer
     let Just (_, withColon) = readInt rawmsg
     let msg = BS.tail withColon
     putStr "Receiving "
