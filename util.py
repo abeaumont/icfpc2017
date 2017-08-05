@@ -8,8 +8,11 @@ def conv_rivers(l):
 def to_claimed_rivers(l):
     punters = {}
     for x in l:
-        v = x[u'claim']
-        punters.setdefault(v[u'punter'], []).append(conv_river(v))
+        try:
+          v = x[u'claim']
+          punters.setdefault(v[u'punter'], []).append(conv_river(v))
+        except KeyError:
+          punters.setdefault(x[u'pass'][u'punter'], [])
     res = []
     for k in sorted(punters.keys()):
         res.append(punters[k])

@@ -1,4 +1,7 @@
 from collections import deque
+import json
+from util import *
+import sys
 
 def score_game(mines, rivers, players):
   ''' mines: iterable of integer mines, in any order: [2, 5, 20]
@@ -73,3 +76,13 @@ test_cases = [
 def test_score_game():
   for mines, rivers, players, answer in test_cases:
     assert(score_game(mines, rivers, players) == answer)
+
+def score_json(m):
+  scores = score_game(m[u'map'][u'mines'],
+                      conv_rivers(m[u'map'][u'rivers']),
+                      to_claimed_rivers(m[u'turns']))
+  return scores
+
+if __name__ == "__main__":
+  with open(sys.argv[1]) as f:
+    print(score_json(json.load(f)))
