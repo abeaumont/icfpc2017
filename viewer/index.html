@@ -150,7 +150,6 @@ function nextTurn() {
         var data = turn.claim;
         claim(data.punter, data.source, data.target);
         $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
-        currentTurn++;
     }
     currentTurn++;
 }
