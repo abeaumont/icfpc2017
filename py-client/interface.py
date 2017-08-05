@@ -20,8 +20,7 @@ class Punter(object):
         self.pass_()
 
     def stop(self, state):
-        """End of game"""
-        self.log("end of game!")
+        self.save_game()
 
     def claim(self, source, target):
         return {'claim': {'punter': self.punter, 'source': source, 'target': target}}

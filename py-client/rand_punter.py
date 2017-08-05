@@ -16,9 +16,6 @@ class RandPunter(interface.Punter):
         else:
             return self.claim(*self.available_rivers.pop())
 
-    def stop(self, state):
-        self.save_game()
-
 if __name__ == '__main__':
     import socket, sys
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
