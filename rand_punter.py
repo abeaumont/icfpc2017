@@ -8,17 +8,9 @@ class RandPunter(interface.Punter):
         super(RandPunter, self).__init__(name, init_state)
         self.fname = fname if fname is not None else str(uuid.uuid4())
         self.all_turns = []
-        self.available_rivers = {(r['source'], r['target']) for r in self.rivers}
         
     def turn(self, state):
         self.log("state: %s", state)
-        self.all_turns.extend(state['move']['moves'])
-        for m in state['move']['moves']:
-            if 'claim' in m:
-                s = m['claim']['source']
-                t = m['claim']['target']
-                self.available_rivers.discard((s, t))
-                self.available_rivers.discard((t, s))
         if len(self.available_rivers) == 0:
             return self.pass_()
         else:

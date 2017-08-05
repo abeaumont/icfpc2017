@@ -82,7 +82,7 @@ class Game():
             try:
                 turn = player.get_move(round)
             except Exception, e:
-                print "PLAYER", player.id, "HAD ERROR. PASSING TURN", turn_num
+                print "PLAYER", player.id, "HAD ERROR. PASSING TURN", i
                 print " ", e
 
             round.append(turn)
