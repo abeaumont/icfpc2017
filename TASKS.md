@@ -1,6 +1,6 @@
 ## TODO:
 
-* [ ] implement random playout - behind schedule!
+* [ ] implement random playout
 * [ ] add scoring to game server [kadoban]
 * [ ] add skeleton for offline client
 * [ ] make game server robust
@@ -43,10 +43,11 @@ Day 2:
   * [ ] add tournaments for running against multiple AI
   * [ ] add some statistics / historical logging, so we can get an idea of an AI's ability
   * [ ] convert to offline mode
-  * [ ] efficient self-play -- for optimizing weights of a linear policy (move evaluation) function
+  * [ ] efficient self-play!! -- be able to test paramaterized bots vs each other, to optimize the weights of their linear policy (move evaluation) function
 
 Day 3:
-
+  * have all the plumbing done! ready to focus solely on optimization and strategies
+  * 
   * TBD
 
 ## Strategy Ideas
@@ -81,12 +82,14 @@ Day 3:
 6. wouldLink2Mines?
 7. distanceFromNearestMineToIt
 8. numRiversItWouldLink
-9. totalNumberOfOutgoingRiversFromHeadAndTailNodes
-10. numNodesReachableFromHeadNode
-11* numNodesReachableFromTailNode
-12* totalDistanceFromAllMines
-13* howLikelyToLinkMines - ?how to compute
-14* ? -- ?fast enough
+9. totalDistanceFromAllOfYourRivers
+10. totalDistanceFromAllOfEnemyRivers
+11. numNodesReachableFromHeadNode
+12* numNodesReachableFromTailNode
+13. totalNumberOfOutgoingRiversFromHeadAndTailNodes
+14* totalDistanceFromAllMines
+15* howLikelyToLinkMines - ?how to compute
+16* ? -- ?fast enough
 
 ###### Terms
 * -r-: unclaimed river/blue river r
