@@ -63,5 +63,7 @@ Day 2:
 * howLikelyWeAreToLinkMines - how to compute?
 * wouldLink
 * totalNumberOfOutgoingRiversFromHeadAndTailNodes
+* numNodesReachableFromHeadNode
+* numNodesReachableFromTailNode
 
 O(3632) rivers in examples .'. each feature in O(V^2)
