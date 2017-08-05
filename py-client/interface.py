@@ -98,7 +98,7 @@ class Interface(object):
 
         punter.all_turns.extend(moves)
         for m in moves:
-            if 'claim' in m:
+            if m and 'claim' in m:
                 s = m['claim']['source']
                 t = m['claim']['target']
                 punter.available_rivers.discard((s, t))
