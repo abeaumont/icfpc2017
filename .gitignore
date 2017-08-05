@@ -1,3 +1,4 @@
 .*sw?
 /output/*.json
 *.pyc
+*.log
