@@ -72,16 +72,16 @@ Day 3:
 ### River Features for an unclaimed river
 * go nuts here with ideas, because we could use up to about 50 features
 * -- any indicator that hints anything about how valuable a river might be
-01* couldntPossiblyConnectToAMine/orphaned/unreachable? -- able to detect/rule out using BFS/DFS
-02* directScoreIncreaseValue
-03* directOpponentScoreDenialValue
-04* isBridge?/bridgeValue/isTheOnlyRiverToSubGraphConnectedComponentOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
-05* isAdjacentToMine?
-06* wouldLink2Mines?
-07* distanceFromNearestMineToIt
-08* numRiversItWouldLink
-09* totalNumberOfOutgoingRiversFromHeadAndTailNodes
-10* numNodesReachableFromHeadNode
+1. couldntPossiblyConnectToAMine/orphaned/unreachable? -- able to detect/rule out using BFS/DFS
+2. directScoreIncreaseValue
+3. directOpponentScoreDenialValue
+4. isBridge?/bridgeValue/isTheOnlyRiverToSubGraphConnectedComponentOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
+5. isAdjacentToMine?
+6. wouldLink2Mines?
+7. distanceFromNearestMineToIt
+8. numRiversItWouldLink
+9. totalNumberOfOutgoingRiversFromHeadAndTailNodes
+10. numNodesReachableFromHeadNode
 11* numNodesReachableFromTailNode
 12* totalDistanceFromAllMines
 13* howLikelyToLinkMines - ?how to compute
