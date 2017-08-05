@@ -48,8 +48,8 @@ class DFSPunter(interface.Punter):
 
             # if we aren't connected yet, we try to connect
             if should_visit and edge in self.available_rivers:
-                score = self.distances[mine][neighbor]**2 - sum([self.distances[m][neighbor] for m in self.mines])
-                this_score = self.distances[mine][next_site]**2 - sum([self.distances[m][next_site] for m in self.mines])
+                score = self.distances[mine][neighbor] - sum([self.distances[m][neighbor] for m in self.mines])
+                this_score = self.distances[mine][next_site] - sum([self.distances[m][next_site] for m in self.mines])
 
                 if next_site in self.visited and self.visited[next_site] != mine:
                     for node in self.visited:
@@ -86,6 +86,7 @@ class DFSPunter(interface.Punter):
                 if ret:
                     return ret
 
+        # actually execute our DFS STACK
         while len(self.dfs_stack):
             next_score, next_site, mine = self.dfs_stack.pop()
             if next_site not in self.neighbors:
