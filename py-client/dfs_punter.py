@@ -50,17 +50,22 @@ class DFSPunter(interface.Punter):
                 this_score = 0
 
                 for m in self.mines:
-                    if m in self.visited and self.visited[m] == m:
+                    if m is not mine and m in self.visited and self.visited[m] == m:
                         score -= self.distances[m][neighbor]
                         this_score -= self.distances[m][next_site]
                     else:
                         score += self.distances[m][neighbor]**2
                         this_score += self.distances[m][next_site]**2
 
-                if next_site in self.visited and self.visited[next_site] != mine:
-                    for node in self.visited:
-                        if self.visited[node] == self.visited[next_site]:
-                            self.visited[node] = mine
+                if next_site in self.visited:
+                    next_mine = abs(self.visited[next_site])
+                    if  next_mine != mine:
+                        for node in self.visited:
+                            if self.visited[node] == self.visited[next_site]:
+                                self.visited[node] = mine
+
+                            self.visited[mine] = -mine
+                            self.visited[next_mine] = -mine
 
                 heapq.heappush(self.dfs_stack, (this_score, next_site, mine) )
                 heapq.heappush(self.dfs_stack, (score, neighbor, mine) )
