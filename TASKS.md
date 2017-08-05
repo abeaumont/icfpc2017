@@ -55,10 +55,10 @@ Day 2:
 * Make a greedy algorithm that has tuneable co-efficients for optimizing
 
 ### River Features (heuristics)
-* couldntPossiblyConnectToAMine/orphaned/unreachable -- able to detect rule out using BFS/DFS O(|V|+|E|)
+* couldntPossiblyConnectToAMine/orphaned/unreachable -- able to detect rule out using BFS/DFS
 * isMineEdge
 * wouldLink2Mines
-* isBridge/bridgeValue/isCutEdge/isTheOnlyRiverToSubGraphConnectedComponentOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
+* isBridge/bridgeValue/isTheOnlyRiverToSubGraphConnectedComponentOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
 * distanceFromMines
 * howLikelyToLinkMines - ?how to compute
 * numRiversItWouldLink
@@ -68,7 +68,10 @@ Day 2:
 * ? -- ?fast enough
 
 ###### Terms
-* "link": "make an adjacent edge between"
-* "bridge": "make reachable (connected)"
+* --: unclaimed river
+* ==: your river
+* xx: enemy river
+* "link": "make an adjacent edge between" eg: 1=v=2  v is a link from 1 to 2
+* "bridge": "make reachable (connected)" eg 1===2-v-3===4 v is an unclaimed bridge from 1 to 4
 
 O(3632) rivers in examples .'. each feature in O(V^2)
