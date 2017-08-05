@@ -61,4 +61,3 @@ class DFSPunter(interface.Punter):
 if __name__ == '__main__':
     iface = interface.OfflineInterface("DFS Punter", DFSPunter)
     iface.run()
-    iface.run()
