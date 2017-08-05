@@ -11,6 +11,7 @@ import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 
 handshake name = object ["me" .= name]
+ready punter = object ["ready" .= punter]
 
 type Punter = Int
 noone = 0 :: Punter
@@ -20,20 +21,22 @@ data River = River !Site !Site
 instance FromJSON River where
     parseJSON = withObject "River" $ \v -> River <$> v .: "source" <*> v .: "target"
 
-type Map = M.Map River Punter
-
 data GameState = GS
     { punter :: !Punter
-    , punters :: ![Punter]
-    , mines :: S.Set Site
-    , rivers :: !Map
+    , punters :: !Int
+    , mines :: !(S.Set Site)
+    , rivers :: !(S.Set River)
+    , claimed :: !(M.Map River Punter)
     }
 
 instance FromJSON GameState where
-    parseJSON = withObject "GameState" $ \v -> makeGS
-        <$> v .: "punter"
-        <*> v .: "punters"
-        <*> v .: "map"
+    parseJSON = withObject "GameState" $ \v -> do
+        mapObj <- v .: "map"
+        punter <- v .: "punter"
+        punters <- v .: "punters"
+        mines <- mapObj .: "mines"
+        rivers <- mapObj .: "rivers"
+        return $ GS punter punters (S.fromList mines) (S.fromList rivers) M.empty
 
 newtype Handshake = Handshake String
     deriving Show
@@ -43,17 +46,22 @@ instance FromJSON Handshake where
 
 data Move = Claim !Punter !River | Pass !Punter
 instance FromJSON Move where
-    parseJSON = withObject "Move" $ \v -> (Claim
-        <$> v .: "punter"
-        <*> (River <$> v.: "source" <*> v .: "target"))
-        <|> (Pass
-        <$> v .: "punter")
+    parseJSON = withObject "Move" $ \v -> (do
+        move <- v .: "claim"
+        punter <- move .: "punter"
+        source <- move .: "source"
+        target <- move .: "target"
+        return $ Claim punter (River source target))
+        <|> (do
+        move <- v .: "pass"
+        punter <- move .: "punter"
+        return $ Pass punter)
 
 instance ToJSON Move where
     toJSON (Claim punter (River source target)) =
         object ["claim" .= object ["punter" .= punter, "source" .= source, "target" .= target]]
     toJSON (Pass punter) =
-        object ["pass" .= punter]
+        object ["pass" .= object ["punter" .= punter]]
 
 data ScoreOf = ScoreOf !Punter !Int
     deriving Show
@@ -76,17 +84,13 @@ instance FromJSON Message where
         <|>
         (MessageEnd <$> v .: "stop")
 
-parseMap :: Value -> Parser ([Site], [River])
-parseMap = withObject "Map" $ \v -> (,)
-    <$> v .: "mines"
-    <*> v .: "rivers"
-
-makeGS :: Punter -> [Punter] -> ([Site], [River]) -> GameState
-makeGS p ps (ms, rs) = GS p ps (S.fromList ms) (M.fromList $ zip rs (repeat 0))
-
 makeMoves :: GameState -> [Move] -> GameState
 makeMoves = foldl' makeMove
 
 makeMove :: GameState -> Move -> GameState
 makeMove gs (Pass _) = gs
-makeMove gs@GS {rivers = rivers} (Claim p r) = gs {rivers = M.insert r p rivers}
+makeMove gs@GS {rivers = rivers, claimed = claimed} (Claim p r) =
+    gs {rivers = S.delete r rivers, claimed = M.insert r p claimed}
+
+strategy :: GameState -> Move
+strategy gs@GS {punter = p, rivers = rivers} = Claim p $ S.findMin rivers
