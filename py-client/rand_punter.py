@@ -17,5 +17,5 @@ class RandPunter(interface.Punter):
             return self.claim(*self.available_rivers.pop())
 
 if __name__ == '__main__':
-    iface = interface.OfflineInterface('Random Punter', RandPunter)
+    iface = interface.MakeInterface('Random Punter', RandPunter)
     iface.run()

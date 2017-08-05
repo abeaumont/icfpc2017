@@ -202,3 +202,19 @@ class OfflineInterface(object):
             except Exception as e:
                 self.log('error: %s', str(e))
         self.fd.close()
+
+
+def MakeInterface(name, punter, offline=False):
+    if not offline or sys.argv[1] == 'local':
+        # if we are using sockets
+        import socket, sys
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if len(sys.argv) < 2:
+            s.connect(('localhost', 9000))
+        else:
+            s.connect(('punter.inf.ed.ac.uk', int(sys.argv[1])))
+        iface = Interface(name, punter, s.makefile())
+    else:
+        iface = OfflineInterface(name, punter)
+
+    return iface

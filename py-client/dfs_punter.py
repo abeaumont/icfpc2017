@@ -59,5 +59,5 @@ class DFSPunter(interface.Punter):
             return self.claim(*self.available_rivers.pop())
 
 if __name__ == '__main__':
-    iface = interface.OfflineInterface("DFS Punter", DFSPunter)
+    iface = interface.MakeInterface("DFS Punter", DFSPunter)
     iface.run()
