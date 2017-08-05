@@ -46,9 +46,10 @@ class DFSPunter(interface.Punter):
             if neighbor in self.mines:
                 should_visit = True
 
+            # if we aren't connected yet, we try to connect
             if should_visit and edge in self.available_rivers:
-                score = self.distances[mine][neighbor]
-                this_score = self.distances[mine][next_site]
+                score = self.distances[mine][neighbor]**2 - sum([self.distances[m][neighbor] for m in self.mines])
+                this_score = self.distances[mine][next_site]**2 - sum([self.distances[m][next_site] for m in self.mines])
 
                 heapq.heappush(self.dfs_stack, (this_score, next_site, mine) )
                 heapq.heappush(self.dfs_stack, (score, neighbor, mine) )
