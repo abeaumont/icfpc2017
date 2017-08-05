@@ -2,6 +2,7 @@ import os
 import interface
 
 import heapq
+import random
 
 
 # optimizations to make:
@@ -45,15 +46,21 @@ class DFSPunter(interface.Punter):
 
             # if we aren't connected yet, we try to connect
             if should_visit and edge in self.available_rivers:
-                score = self.distances[mine][neighbor] - sum([self.distances[m][neighbor] for m in self.mines])
-                this_score = self.distances[mine][next_site] - sum([self.distances[m][next_site] for m in self.mines])
+                score = 0
+                this_score = 0
+
+                for m in self.mines:
+                    if m in self.visited and self.visited[m] == m:
+                        score -= self.distances[m][neighbor]
+                        this_score -= self.distances[m][next_site]
+                    else:
+                        score += self.distances[m][neighbor]**2
+                        this_score += self.distances[m][next_site]**2
 
                 if next_site in self.visited and self.visited[next_site] != mine:
                     for node in self.visited:
                         if self.visited[node] == self.visited[next_site]:
                             self.visited[node] = mine
-
-                    this_score = abs(max(this_score, 10) * this_score)
 
                 heapq.heappush(self.dfs_stack, (this_score, next_site, mine) )
                 heapq.heappush(self.dfs_stack, (score, neighbor, mine) )
@@ -89,7 +96,10 @@ class DFSPunter(interface.Punter):
             if next_site not in self.neighbors:
                 continue
 
-            for neighbor in self.neighbors[next_site]:
+            neighbors = list(self.neighbors[next_site])
+            random.shuffle(neighbors)
+
+            for neighbor in neighbors:
                 ret = visit(mine, next_site, neighbor)
                 if ret:
                     return ret
