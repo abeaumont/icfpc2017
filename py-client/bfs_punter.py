@@ -6,7 +6,7 @@ class BFSPunter(interface.Punter):
         super(BFSPunter, self).__init__(name, init_state)
         self.bfs_queue = deque([m for m in self.mines])
         self.visited = {}
-        print "STARTING WITH MINES", self.bfs_queue
+        self.log("STARTING WITH MINES: {}".format(self.bfs_queue))
 
     def turn(self, state):
         self.log("state: %s", state)
@@ -15,7 +15,7 @@ class BFSPunter(interface.Punter):
         while len(self.bfs_queue):
             next_site = self.bfs_queue.popleft()
             if next_site not in self.neighbors:
-                print "SITE", next_site, "HAS NO NEIGHBORS"
+                self.log("SITE {} HAS NO NEIGHBORS".format(next_site))
                 continue
 
 

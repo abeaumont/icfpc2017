@@ -12,3 +12,9 @@ $ bash play.sh <bot1> <bot2>
 ## defbot = py-clients/rand_punter.py   defmap = maps/circle.json  gonna do specified maps later
 ```
 
+*NOTE* Do _not_ use `print` for debugging purposes.
+Offline mode uses stdio for bot communication so it won't work.
+use `self.log` instead, like:
+```python
+self.log('whatever: {} and {}'.format(a, b))
+```
