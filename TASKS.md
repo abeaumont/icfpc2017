@@ -67,7 +67,7 @@ Day 2:
 * numNodesReachableFromTailNode
 * ? -- ?fast enough
 
-
+###### Terms
 * "link": "make an adjacent edge between"
 * "connect": "make reachable (connected)"
 
