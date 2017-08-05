@@ -6,3 +6,8 @@
 * a new file game.json will have been generated in output/
 * run `bash scripts/runviewer.sh` to open a webpage and watch the game JSON. load a custom JSON via the text input box
 
+or
+```
+$ bash play.sh <bot1> <bot2>   # def = py-clients/rand_punter.py
+```
+
