@@ -82,7 +82,7 @@ $(function() {
   }
 
   function claim(player, source, target) {
-      var river = rivers[source + ";" + target];
+      var river = rivers[source + ";" + target] || rivers[target + ";" + source];
       var edge = sWrap.graph.edges(river);
       edge.color = colors[player + 1];
       if (player === null) {
@@ -98,7 +98,6 @@ $(function() {
   function mapToSigma(obj) {
       var res = {"nodes": obj.sites, "edges": obj.rivers};
       mines = new Set(obj.mines);
-      console.log(mines);
       for (var n of res.nodes) {
           if (mines.has(n.id)) {
               n.size = 10;
@@ -178,6 +177,7 @@ $(function() {
       turn = turns[currentTurn];
       if (turn.claim) {
           var data = turn.claim;
+          console.log("DOING TURN", data);
           claim(data.punter, data.source, data.target);
           $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
       }
