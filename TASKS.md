@@ -38,7 +38,6 @@ Day 2:
 ## Strategy Ideas
 
 * put your ideas here!
-
 * Brute-force solver for testing on small. Make it usable near the end of games
   as well.
 * MCTS (monte carlo tree search), code here: 
@@ -57,13 +56,18 @@ Day 2:
 
 ### River Features (heuristics)
 * couldntPossiblyConnectToAMine/orphaned/unreachable -- able to detect rule out using BFS/DFS O(|V|+|E|)
+* isMineEdge
 * wouldLink2Mines
 * isBridge/bridgeValue/isCutEdge/isTheOnlyRiverToSubGraphConnectedComponentOfSizeS https://en.wikipedia.org/wiki/Bridge_(graph_theory)
 * distanceFromMines
-* howLikelyToLinkMines - how to compute?
-* wouldLink
+* howLikelyToLinkMines - ?how to compute
+* numRiversItWouldLink
 * totalNumberOfOutgoingRiversFromHeadAndTailNodes
 * numNodesReachableFromHeadNode
 * numNodesReachableFromTailNode
+* -- ?fast enough
+
+"link": "make an adjacent edge between"
+"connect": "make reachable (connected)"
 
 O(3632) rivers in examples .'. each feature in O(V^2)
