@@ -52,6 +52,11 @@ function getParameterByName(name, url) {
 
 $(function() {
   var gameName = getParameterByName("game") || "game";
+  if (gameName.charAt(gameName.length - 1) == "/") {
+  // workaround for a bug on kadoban's setup, browsers/server are adding
+  // a forward slash at the end, screwing up the load
+      gameName = gameName.slice(0, -1);
+  }
   var testGame = "../output/" + gameName + ".json";
   var turns, currentTurn;
   var sWrap;
