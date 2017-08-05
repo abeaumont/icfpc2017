@@ -139,11 +139,16 @@ class Interface(object):
         self.server.flush()
 
     def _recv(self):
-        line = self.server.readline()
+        s = ''
+        c = self.server.read(1)
+        while c != ':':
+            s += c
+            c = self.server.read(1)
+        line = self.server.read(int(s))
         self.log('receiving message: %s', line)
         if not line:
             raise EOFError()
-        return json.loads(line.split(':', 1)[1])
+        return json.loads(line)
 
     def log(self, message, *args):
         print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))

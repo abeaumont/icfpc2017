@@ -17,15 +17,20 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 class GameHandler(SocketServer.StreamRequestHandler):
     def _recv(self):
-        msg = self.request.recv(10**9)
+        s = ''
+        c = self.rfile.read(1)
+        while c != ':':
+            s += c
+            c = self.rfile.read(1)
+        msg = self.rfile.read(int(s))
         print '<<<', msg
-        return json.loads(msg.split(':', 1)[1])
+        return json.loads(msg)
 
     def _send(self, msg):
         msg = json.dumps(msg)
         msg = '{}:{}'.format(len(msg), msg)
         print '>>>', msg
-        self.wfile.write(msg + '\n')
+        self.wfile.write(msg)
         self.wfile.flush()
 
     def handle(self):

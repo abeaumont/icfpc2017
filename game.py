@@ -14,7 +14,10 @@ class Player():
     def get_move(self, prev_round):
         print "PROMPTING PLAYER FOR MOVE", self.id, "PREV ROUND:", prev_round
         self.request._send({"move": {"moves": prev_round}})
-        return self.request._recv()
+        msg = self.request._recv()
+        if 'state' in msg:
+            del msg['state']
+        return msg
 
     def get_ready(self, punters, game_map):
         print "Player setup", self.id
