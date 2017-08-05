@@ -46,11 +46,6 @@ class DFSPunter(interface.Punter):
             return self.claim(*self.available_rivers.pop())
 
 if __name__ == '__main__':
-    import socket, sys
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if len(sys.argv) < 2:
-        s.connect(('localhost', 9000))
-    else:
-        s.connect(('punter.inf.ed.ac.uk', int(sys.argv[1])))
-    iface = interface.Interface("DFS Hunter", DFSPunter, s.makefile())
+    iface = interface.OfflineInterface("DFS Punter", DFSPunter)
+    iface.run()
     iface.run()

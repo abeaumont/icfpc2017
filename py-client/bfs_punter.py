@@ -44,11 +44,5 @@ class BFSPunter(interface.Punter):
 
 
 if __name__ == '__main__':
-    import socket, sys
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if len(sys.argv) < 2:
-        s.connect(('localhost', 9000))
-    else:
-        s.connect(('punter.inf.ed.ac.uk', int(sys.argv[1])))
-    iface = interface.Interface("BFS Hunter", BFSPunter, s.makefile())
+    iface = interface.OfflineInterface("BFS Punter", BFSPunter)
     iface.run()
