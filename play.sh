@@ -38,9 +38,9 @@ echo "${2:-py-client/rand_punter.py} (1)"
   #xterm -e python server.py -m $map &  # TODO
   xterm -e python server.py & 
   sleep 1
-  xterm -e bash -c 'python ${2:-py-client/rand_punter.py}; read -r' &
-  xterm -e bash -c 'python ${3:-py-client/rand_punter.py}; read -r' &
-  xterm -e bash -c 'sh scripts/runviewer.sh; read -r'
+  xterm -e bash -c "python ${2:-py-client/rand_punter.py}; read -r" &
+  xterm -e bash -c "python ${3:-py-client/rand_punter.py}; read -r" &
+  xterm -e bash -c "sh scripts/runviewer.sh; read -r"
 #else
   ## quiet (default)
   #xterm -e python server.py & 
