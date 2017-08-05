@@ -1,3 +1,4 @@
+import argparse
 import sys
 import threading
 import json
@@ -82,9 +83,13 @@ def start():
 
     return game_thread
 
-MAP="maps/circle.json"
-PLAYERS=2
 def main():
+    parser = argparse.ArgumentParser(description='Game Server.')
+    parser.add_argument('-m', '--map', default='maps/circle.json', help='map to use')
+    parser.add_argument('-n', type=int, default=2, help='number of players')
+    args = parser.parse_args()
+    MAP = args.map
+    PLAYERS = args.n
     global GAME
     GAME = game.Game(MAP, PLAYERS)
     t = start()
