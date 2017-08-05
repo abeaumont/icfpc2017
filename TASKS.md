@@ -69,6 +69,6 @@ Day 2:
 
 ###### Terms
 * "link": "make an adjacent edge between"
-* "connect": "make reachable (connected)"
+* "bridge": "make reachable (connected)"
 
 O(3632) rivers in examples .'. each feature in O(V^2)
