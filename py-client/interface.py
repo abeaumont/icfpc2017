@@ -69,7 +69,11 @@ class Punter(object):
 
     def turn(self, state):
         """Your logic per turn goes here"""
-        self.pass_()
+        return self.pass_()
+
+    def futures(self):
+        """Your futures logic here"""
+        return [{"source": 1, "target": 2}]
 
     def stop(self, state):
         self.save_game()
@@ -168,8 +172,14 @@ class Interface(object):
         self._recv()
         init = self._recv()
         self.log("init: %s", str(init))
-        self._send({'ready': init['punter']})
         self.punter = self.punter_class(self.name, init)
+        settings = init.get('settings', {})
+        msg = {
+            'ready': init['punter']
+        }
+        if settings.get('futures', False):
+            msg['futures'] = self.punter.futures()
+        self._send(msg)
         while True:
             state = self._recv()
             self.punter.upkeep_punter(state)
@@ -221,10 +231,14 @@ class OfflineInterface(object):
         if 'punter' in msg:
             try:
                 self.punter = self.punter_class(self.name, msg)
-                self._send({
+                settings = msg.get('settings', {})
+                msg = {
                     'ready': msg['punter'],
                     'state': self.punter.get_state()
-                })
+                }
+                if settings.get('futures', False):
+                    msg['futures'] = self.punter.futures()
+                self._send(msg)
             except:
                 self.log('error: %s', traceback.format_exc())
         elif 'move' in msg:

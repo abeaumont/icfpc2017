@@ -25,7 +25,9 @@ class Player():
         self.request._send({
             'punter': self.id,
             'punters': punters,
-            'map': game_map})
+            'map': game_map,
+            'settings': {'futures': True}
+        })
         return self.request._recv()
 
     def stop(self, round, scores):
@@ -79,9 +81,15 @@ class Game():
         )
         players = len(self.players)
         self.all_turns = []
+        self.futures = []
 
-        for player in self.players.values():
-            player.get_ready(players, self.map)
+        for i, player in self.players.iteritems():
+            msg = player.get_ready(players, self.map)
+            futures = msg.get('futures', [])
+            for f in futures:
+                f['punter'] = i
+                self.futures.append(f)
+
         turns = len(self.map["rivers"]) if 'rivers' in self.map else 0
 
         player_turn = 0
@@ -136,6 +144,7 @@ class Game():
             pass
 
         json_obj = {
+            "futures": self.futures,
             "turns" : self.all_turns,
             "num_players" : len(self.players),
             "map" : self.map
