@@ -26,3 +26,13 @@ $ bash play.sh <bot1> <bot2>
 * game server: `python server.py`
 * client against local server (from `py-client`): `lamduct --game-hostname localhost --game-port 9000 --log-level 3 ./rand.sh`
 * client against remote server (from `py-client`): `lamduct --game-port 9009 --log-level 3 ./rand.sh`
+
+
+# To run a game with different maps
+
+`python tournament.py [-n players] [-m mapdir]`
+
+This will create a server that iterates through the maps in `mapdir`.
+Just connect bots normally.
+
+
