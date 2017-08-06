@@ -4,11 +4,12 @@ import rand_punter
 import bfs_punter
 import dfs_punter
 import mst_punter
+import lst_punter
 import greedy_punter
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Launch a punter.')
-    parser.add_argument('-t', '--type', type=str, choices=['rand', 'bfs', 'dfs', 'mst', 'greedy'], default='rand',
+    parser.add_argument('-t', '--type', type=str, choices=['rand', 'bfs', 'dfs', 'mst', 'lst', 'greedy'], default='rand',
                         help='punter type (default rand)')
     parser.add_argument('-H', '--host', type=str, default='punter.inf.ed.ac.uk',
                         help='host to connect to (default Opunter.inf.ed.ac.uk", online mode only)')
@@ -25,6 +26,8 @@ if __name__ == '__main__':
         punter = bfs_punter.BFSPunter
     elif args.type == 'mst':
         punter = mst_punter.MSTPunter
+    elif args.type == 'lst':
+        punter = lst_punter.LSTPunter
     elif args.type == 'greedy':
         punter = greedy_punter.GreedyPunter
     else:
