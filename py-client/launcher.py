@@ -6,6 +6,7 @@ import dfs_punter
 import mst_punter
 import lst_punter
 import greedy_punter
+import hybrid_punter
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Launch a punter.')
@@ -30,6 +31,8 @@ if __name__ == '__main__':
         punter = lst_punter.LSTPunter
     elif args.type == 'greedy':
         punter = greedy_punter.GreedyPunter
+    elif args.type == 'hybrid':
+        punter = hybrid_punter.HybridPunter
     else:
         punter = rand_punter.RandPunter
     if args.offline:
