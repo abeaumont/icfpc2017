@@ -1,0 +1,2 @@
+#!/bin/sh
+easy_install --user networkx-1.11-py2.7.egg
