@@ -42,5 +42,5 @@ class MSTPunter(interface.Punter):
         return self.claim(*e)
 
 if __name__ == '__main__':
-    iface = interface.MakeInterface("Least Punter", MSTPunter)
+    iface = interface.MakeInterface("Most Punter", MSTPunter)
     iface.run()

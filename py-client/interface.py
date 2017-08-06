@@ -111,6 +111,20 @@ class Punter(object):
         elif 'stop' in state:
             moves = state['stop']['moves']
 
+            if 'scores' in state['stop']:
+                scores = {}
+                for info in state['stop']['scores']:
+                    scores[info['punter']] = info['score']
+
+                max_score = max(scores.values())
+                if self.punter in scores:
+                    our_score = (scores[self.punter])
+                    self.log("OUR SCORE IS %s" % our_score)
+                    if our_score == max_score:
+                        self.log("WE ARE WINNER! (OR TYING)")
+
+
+
         self.all_turns.extend(moves)
         for m in moves:
             if m and 'claim' in m:
@@ -261,6 +275,7 @@ class OfflineInterface(object):
                 self.punter.stop(msg)
             except:
                 self.log('error: %s', traceback.format_exc())
+
         self.fd.close()
 
 
