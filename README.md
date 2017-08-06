@@ -15,8 +15,8 @@ self.log('whatever: {} and {}'.format(a, b))
 
 or
 ```
-$ bash play.sh <bot1> <bot2>   
-## defbot = py-clients/rand_punter.py   defmap = maps/circle.json  gonna do specified maps later
+bash play.sh <bot1> <bot2>            ## defbot = py-clients/rand_punter.py
+bash play.sh -m <map> <bot1> <bot2>   ## defmap = maps/circle.json
 ```
 
 # to run a game in offline mode
