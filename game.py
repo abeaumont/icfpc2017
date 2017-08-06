@@ -134,14 +134,15 @@ class Game():
             ', '.join(['{}: {}'.format(self.players[d['punter']].name, d['score'])
                        for d in scores]))
         players = self.players.values()
-        self.players = {}
-
         for p in sorted(players):
             p.stop(round, scores)
             player.request.running = False
 
         # TODO: evaluate the actual game
         self.save_game(filename='output/' + os.path.basename(game_map))
+
+        # we reset players after saving game, bc we still need their names
+        self.players = {}
 
 
     def save_game(self, filename="output/game.json"):
