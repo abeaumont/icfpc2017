@@ -33,7 +33,7 @@ class Player():
             'punter': self.id,
             'punters': punters,
             'map': game_map,
-            'settings': {'futures': True}
+            'settings': {'futures': True, 'options': True}
         })
         return self.request._recv()
 

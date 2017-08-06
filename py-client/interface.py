@@ -12,12 +12,23 @@ class Punter(object):
     def __init__(self, name, state, fname=None):
         self.fname = fname if fname is not None else str(uuid.uuid4())
         self.state = state
+
+
         self.offline = False
+        self.has_options = False
+
+
+
         self.name = name
         self.punter = state['punter']
         self.punters = state['punters']
         self.map = state['map']
         self.sites = {s['id'] for s in state['map'].get('sites', [])}
+
+        self.used_options = 0
+        if 'used_options' in state:
+            self.used_options = state['used_options']
+
         if 'positions' in state:
             self.positions = state['positions']
         else:
@@ -32,6 +43,11 @@ class Punter(object):
             self.available_rivers = {tuple(r) for r in state['available_rivers']}
         else:
             self.available_rivers = {(r['source'], r['target']) for r in self.rivers}
+        if 'taken_rivers' in state:
+            self.taken_rivers = {tuple(r) for r in state['taken_rivers']}
+        else:
+            self.taken_rivers = set()
+
         if 'all_turns' in state:
             self.all_turns = state['all_turns']
         else:
@@ -70,6 +86,8 @@ class Punter(object):
         """State to be saved between turns (offline mode only)"""
         state = self.state
         state['available_rivers'] = list(self.available_rivers)
+        state['taken_rivers'] = list(self.taken_rivers)
+        state['used_options'] = self.used_options
         state['all_turns'] = self.all_turns
         state['neighbors'] = {k: list(v) for k,v in self.neighbors.iteritems()}
         state['distances'] = self.distances
@@ -85,6 +103,13 @@ class Punter(object):
 
     def stop(self, state):
         self.save_game()
+
+    def option(self, source, target):
+        # we need to verify the source targets properly
+
+        for river in self.rivers:
+            if (river["target"] == target and river["source"] == source) or (river["target"] == source and river["source"] == target):
+                return {'option': {'punter': self.punter, 'source': river["source"], 'target': river["target"]}}
 
     def claim(self, source, target):
         # we need to verify the source targets properly
@@ -146,7 +171,15 @@ class Punter(object):
                 t = m['claim']['target']
                 self.available_rivers.discard((s, t))
                 self.available_rivers.discard((t, s))
+
+                if m['claim']['punter'] != self.punter:
+                    self.taken_rivers.add((s,t))
+                    self.taken_rivers.add((t,s))
+
             if 'splurge' in m:
+                if m['splurge']['punter'] == self.punter:
+                    continue
+
                 def pairwise(iterable):
                     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
                     a, b = itertools.tee(iterable)
@@ -156,6 +189,8 @@ class Punter(object):
                 for x,y in pairwise(m['splurge']['route']):
                     self.available_rivers.discard((x,y))
                     self.available_rivers.discard((y,x))
+                    self.taken_rivers.add((x,y))
+                    self.taken_rivers.add((y,x))
 
 
     def save_game(self):
@@ -221,7 +256,11 @@ class Interface(object):
         self.log("init: %s", str(init))
 
         self.punter = self.punter_class(self.name, init)
+
         settings = init.get('settings', {})
+        if settings.get('options', False):
+            self.punter.has_options = True
+
         msg = {
             'ready': init['punter']
         }
@@ -280,6 +319,10 @@ class OfflineInterface(object):
                 self.punter = self.punter_class(self.name, msg)
                 self.punter.offline = True
                 settings = msg.get('settings', {})
+
+                if settings.get('options', False):
+                    self.punter.has_options = True
+
                 msg = {
                     'ready': msg['punter'],
                     'state': self.punter.get_state()
@@ -293,6 +336,9 @@ class OfflineInterface(object):
             try:
                 self.punter = self.punter_class(self.name, msg['state'])
                 self.punter.offline = True
+                settings = msg.get('settings', {})
+                if settings.get('options', False):
+                    self.punter.has_options = True
                 self.punter.upkeep_punter(msg)
                 msg = self.punter.turn(msg)
                 msg['state'] = self.punter.get_state()
@@ -303,6 +349,9 @@ class OfflineInterface(object):
             try:
                 self.punter = self.punter_class(self.name, msg['state'])
                 self.punter.offline = True
+                settings = msg.get('settings', {})
+                if settings.get('options', False):
+                    self.punter.has_options = True
                 self.punter.upkeep_punter(msg)
                 self.punter.stop(msg)
             except:
