@@ -15,6 +15,7 @@ self.log('whatever: {} and {}'.format(a, b))
 
 or
 ```
+bash play.sh <bot1>                   ## plays bot1 vs defbot
 bash play.sh <bot1> <bot2>            ## defbot = py-clients/rand_punter.py
 bash play.sh -m <map> <bot1> <bot2>   ## defmap = maps/circle.json
 ```
