@@ -90,9 +90,13 @@ class DFSPunter(interface.Punter):
             if m not in self.neighbors:
                 continue
 
+            if not m in self.neighbors:
+                continue
+
             # we should order the neighbors based on their distance from all
             # the other mines
             neighbor_scores = {}
+
             for neighbor in self.neighbors[m]:
                 neighbor_scores[neighbor] = 0
                 for mm in self.mines:
