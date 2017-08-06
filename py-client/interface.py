@@ -7,6 +7,7 @@ import uuid
 
 from helpers import game_url
 from collections import deque
+import itertools
 
 class Punter(object):
     def __init__(self, name, state, fname=None):
