@@ -12,6 +12,7 @@ class Punter(object):
     def __init__(self, name, state, fname=None):
         self.fname = fname if fname is not None else str(uuid.uuid4())
         self.state = state
+        self.offline = False
         self.name = name
         self.punter = state['punter']
         self.punters = state['punters']
@@ -67,7 +68,6 @@ class Punter(object):
 
     def get_state(self):
         """State to be saved between turns (offline mode only)"""
-        self.log("SAVING STATE FROM INTERFACE")
         state = self.state
         state['available_rivers'] = list(self.available_rivers)
         state['all_turns'] = self.all_turns
@@ -147,6 +147,9 @@ class Punter(object):
                 self.available_rivers.discard((t, s))
 
     def save_game(self):
+        if self.offline:
+            return
+
         try:
             os.makedirs("output")
         except OSError:
@@ -202,7 +205,9 @@ class Interface(object):
         self._send({'me': self.name})
         self._recv()
         init = self._recv()
+
         self.log("init: %s", str(init))
+
         self.punter = self.punter_class(self.name, init)
         settings = init.get('settings', {})
         msg = {
@@ -261,6 +266,7 @@ class OfflineInterface(object):
         if 'punter' in msg:
             try:
                 self.punter = self.punter_class(self.name, msg)
+                self.punter.offline = True
                 settings = msg.get('settings', {})
                 msg = {
                     'ready': msg['punter'],
@@ -274,6 +280,7 @@ class OfflineInterface(object):
         elif 'move' in msg:
             try:
                 self.punter = self.punter_class(self.name, msg['state'])
+                self.punter.offline = True
                 self.punter.upkeep_punter(msg)
                 msg = self.punter.turn(msg)
                 msg['state'] = self.punter.get_state()
@@ -283,6 +290,7 @@ class OfflineInterface(object):
         elif 'stop' in msg:
             try:
                 self.punter = self.punter_class(self.name, msg['state'])
+                self.punter.offline = True
                 self.punter.upkeep_punter(msg)
                 self.punter.stop(msg)
             except:
