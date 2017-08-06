@@ -1,2 +1,7 @@
 #!/bin/sh
-easy_install --user networkx-1.11-py2.7.egg
+SETUPTOOLS=setuptools-36.2.7
+unzip $SETUPTOOLS.zip
+cd $SETUPTOOLS
+python setup.py install --user
+cd ..
+~/.local/bin/easy_install --user networkx-1.11-py2.7.egg
