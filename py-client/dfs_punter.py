@@ -102,6 +102,7 @@ class DFSPunter(interface.Punter):
                 continue
 
             neighbors = list(self.neighbors[next_site])
+            random.shuffle(neighbors)
             for neighbor in neighbors:
                 ret = visit(mine, next_site, neighbor)
                 if ret:
