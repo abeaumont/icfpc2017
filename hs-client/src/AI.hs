@@ -14,6 +14,9 @@ import Debug.Trace
 
 type Strategy = GameState -> Move
 
+type Name = String
+data Player = Player Name Strategy
+
 mockStrategy :: Strategy
 mockStrategy gs@GS {punter = p, rivers = rivers} = Claim p $ S.findMin rivers
 
@@ -31,16 +34,19 @@ dfsStrategy gs@GS {punter = p, mines = mines, rivers = rivers, claimed = claimed
     Claim p $ fst $ maximumBy (comparing snd) (traceShowId options) where
         availSites = S.toList $ S.fromList $ allSites $ S.toList rivers
 
-        graph :: Gr () ()
-        graph = undir $ mkUGraph availSites $ S.toList rivers ++ M.keys claimed
+        freeGraph :: Gr () ()
+        freeGraph = undir $ mkUGraph availSites $ S.toList rivers
+
+        fullGraph :: Gr () ()
+        fullGraph = undir $ mkUGraph availSites $ S.toList rivers ++ M.keys claimed
 
         options = [(r, score r) | r <- S.toList rivers]
 
         score :: River -> Sc
         score r@(s, t)
             | S.null reachableMines = fromMaybe 0 (M.lookup r startMap)
-            | s `S.member` reachable = fromMaybe 0 $ M.lookup t scoreMines
-            | t `S.member` reachable = fromMaybe 0 $ M.lookup s scoreMines
+            | s `S.member` reachable = fromMaybe 0 $ M.lookup t finalScore
+            | t `S.member` reachable = fromMaybe 0 $ M.lookup s finalScore
             | otherwise = 0
 
         ours :: [River]
@@ -59,7 +65,10 @@ dfsStrategy gs@GS {punter = p, mines = mines, rivers = rivers, claimed = claimed
 
         scoreMine :: Site -> SiteDistMap
         scoreMine mine = depths where
-            depths = M.fromList $ level mine graph
+            depths = M.fromList $ level mine fullGraph
 
         scoreMines :: SiteDistMap
         scoreMines = foldl' (M.unionWith max) M.empty $ map scoreMine $ S.toList reachableMines
+
+        finalScore :: SiteDistMap
+        finalScore = M.mapWithKey (\k v -> sum $ map (scoreMines M.!) $ neighbors freeGraph k) scoreMines

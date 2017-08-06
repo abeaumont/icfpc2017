@@ -66,10 +66,16 @@ instance ToJSON Move where
         object ["pass" .= object ["punter" .= punter]]
 
 data ScoreOf = ScoreOf !Punter !Int
-    deriving Show
+    deriving (Eq, Show)
+
+instance Ord ScoreOf where
+    compare (ScoreOf _ s1) (ScoreOf _ s2) = compare s1 s2
+
 instance FromJSON ScoreOf where
     parseJSON = withObject "ScoreOf" $ \v ->
         ScoreOf <$> v .: "punter" <*> v .: "score"
+
+type ScoreTable = [ScoreOf]
 
 data Endgame = Endgame [Move] [ScoreOf]
 instance FromJSON Endgame where
