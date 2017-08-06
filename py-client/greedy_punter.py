@@ -14,7 +14,9 @@ class GreedyPunter(interface.Punter):
         self.own_edges = init_state.get('own_edges', [])
         self.sets = init_state.get('sets', None)
         if self.sets is None:
-            self.sets = {m: unionfind.set(m) for m in self.mines}
+            self.sets = unionfind.new()
+            for m in self.mines:
+                unionfind.find(self.sets, m)
         self.own_mines = init_state.get('own_mines', [])
 
     def get_state(self):
@@ -25,11 +27,7 @@ class GreedyPunter(interface.Punter):
         return state
 
     def select(self, e):
-        if e[0] not in self.sets:
-            self.sets[e[0]] = unionfind.set(e[0])
-        if e[1] not in self.sets:
-            self.sets[e[1]] = unionfind.set(e[1])
-        unionfind.union(self.sets[e[0]], self.sets[e[1]])
+        unionfind.union(self.sets, e[0], e[1])
         #self.log('select>>> {}'.format(e))
         self.own_edges.append(e)
 
@@ -43,8 +41,8 @@ class GreedyPunter(interface.Punter):
             g.add_edge(s, t, weight=0)
         subgraphs = set()
         for m in self.mines:
-            s = unionfind.find(self.sets[m])
-            subgraphs.add(s[0])
+            s = unionfind.find(self.sets, m)
+            subgraphs.add(s)
         mines = []
         for m in self.mines:
             if m in self.own_mines: continue
@@ -102,7 +100,7 @@ class GreedyPunter(interface.Punter):
         next = None
         mind = 10**8
         for (s, t) in self.own_edges:
-            parent = unionfind.find(self.sets[s])[0]
+            parent = unionfind.find(self.sets, s)
             for sg in subgraphs:
                 if parent != sg:
                     try:
@@ -111,12 +109,12 @@ class GreedyPunter(interface.Punter):
                         src = None
                         dst = None
                         for i in p:
-                            if i not in self.sets or unionfind.find(self.sets[i])[0] not in [parent, sg]:
+                            if i not in self.sets['parents'] or unionfind.find(self.sets, i) not in [parent, sg]:
                                 d += 1
                                 if dst is None:
                                     dst = i
                             elif d == 1:
-                                if unionfind.find(self.sets[i])[0] == parent:
+                                if unionfind.find(self.sets, i) == parent:
                                     src = i
                                 elif dst is None:
                                     dst = i
@@ -137,12 +135,12 @@ class GreedyPunter(interface.Punter):
                         src = None
                         dst = None
                         for i in p:
-                            if i not in self.sets or unionfind.find(self.sets[i])[0] not in [parent, sg]:
+                            if i not in self.sets['parents'] or unionfind.find(self.sets, i) not in [parent, sg]:
                                 d += 1
                                 if dst is None:
                                     dst = i
                             elif d == 1:
-                                if unionfind.find(self.sets[i])[0] == parent:
+                                if unionfind.find(self.sets, i) == parent:
                                     src = i
                                 elif dst is None:
                                     dst = i
@@ -180,7 +178,7 @@ class GreedyPunter(interface.Punter):
             if e[0] in self.sets or e[1] in self.sets:
                 self.select(e)
                 return self.claim(*e)
-        
+
         # 5) Pick any available edge
         e = self.available_rivers.pop()
         self.select(e)
