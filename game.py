@@ -64,7 +64,9 @@ class Game():
             player.id = pid
             player.request = player_request
             self.players[pid] = player
-            #print "ADDING PLAYER", player, player.id, player.name
+            print "BEFORE:", len(self.players), "PLAYERS IN THE GAME"
+            print "ADDING PLAYER", player, player.id, player.name
+            print "NOW THEY are", self.players, len(self.players), "PLAYERS IN THE GAME"
 
 
             if len(self.players) == self.num_players:
@@ -131,17 +133,15 @@ class Game():
             datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             ', '.join(['{}: {}'.format(self.players[d['punter']].name, d['score'])
                        for d in scores]))
-        for p in sorted(self.players.values()):
-            p.stop(round, scores)
-            #round.append()
-            #round.pop(0)
+        players = self.players.values()
+        self.players = {}
 
-        for player in self.players.values():
+        for p in sorted(players):
+            p.stop(round, scores)
             player.request.running = False
 
         # TODO: evaluate the actual game
         self.save_game(filename='output/' + os.path.basename(game_map))
-        self.players = {}
 
 
     def save_game(self, filename="output/game.json"):

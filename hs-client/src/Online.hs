@@ -1,5 +1,6 @@
 module Online where
 
+import Data.Char (digitToInt)
 import Data.Aeson
 import qualified Data.ByteString.Lazy as BS (toStrict)
 import qualified Data.ByteString as BS (concat, length, tail)
@@ -18,12 +19,13 @@ sendJSON sock v = do
     return ()
 
 recvLength :: Socket -> IO Int
-recvLength sock = run "" where
+recvLength sock = run 0 where
     run acc = do
         char <- recv sock 1
         case unpack char of
-            ":" -> return $ read $ reverse acc
-            [d] -> run (d:acc)
+            ":" -> return acc
+            [d] -> run $ 10 * acc + digitToInt d
+            r -> error $ "Error: [" ++ show r ++ "]"
 
 recvTotal sock len = run len [] where
     run 0 acc = return $ BS.concat $ reverse acc
@@ -39,8 +41,12 @@ recvJSON sock = do
         Left err -> error err
         Right res -> return res
 
-play :: Player -> Socket -> IO ScoreTable
-play (Player name strategy) sock = do
+type Name = String
+data Player = Player Name Strategy
+
+type GameResult = (Punter, ScoreTable)
+play :: Socket -> Player -> IO GameResult
+play sock (Player name strategy) = do
     sendJSON sock (handshake name)
     response <- recvJSON sock :: IO Handshake
     initGS <- recvJSON sock
@@ -53,14 +59,24 @@ play (Player name strategy) sock = do
                 let newGS = makeMoves gs moves
                 sendJSON sock (strategy newGS)
                 makeTurn newGS
-            MessageEnd (Endgame moves scores) -> return scores
+            MessageEnd (Endgame moves scores) -> do
+                close sock
+                return (punter gs, scores)
     }
-
     makeTurn initGS
 
-client :: String -> Int -> IO Socket
-client host port = withSocketsDo $ do
+data ConnectionManager = CM Family SockAddr
+
+mkManager :: String -> Int -> IO ConnectionManager
+mkManager host port = do
     (serverAddr:_) <- getAddrInfo Nothing (Just host) (Just $ show port)
-    sock <- socket (addrFamily serverAddr) Stream defaultProtocol
-    connect sock (addrAddress serverAddr)
+    return $ CM (addrFamily serverAddr) (addrAddress serverAddr)
+
+mkSocket :: ConnectionManager -> IO Socket
+mkSocket (CM family addr) = do
+    sock <- socket family Stream defaultProtocol
+    connect sock addr
     return sock
+
+connectSocket :: ConnectionManager -> Socket -> IO ()
+connectSocket (CM family addr) sock = connect sock addr

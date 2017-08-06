@@ -1,4 +1,6 @@
-module AI where
+module AI
+    ( Strategy, mockStrategy, simpleStrategy, allSites
+    ) where
 
 import Data.List (foldl', maximumBy)
 import qualified Data.Map as M
@@ -14,9 +16,6 @@ import Debug.Trace
 
 type Strategy = GameState -> Move
 
-type Name = String
-data Player = Player Name Strategy
-
 mockStrategy :: Strategy
 mockStrategy gs@GS {punter = p, rivers = rivers} = Claim p $ S.findMin rivers
 
@@ -29,8 +28,8 @@ allSites :: [River] -> [Site]
 allSites [] = []
 allSites ((s, t) : rs) = s:t:allSites rs
 
-dfsStrategy :: Strategy
-dfsStrategy gs@GS {punter = p, mines = mines, rivers = rivers, claimed = claimed} =
+simpleStrategy :: Strategy
+simpleStrategy gs@GS {punter = p, mines = mines, rivers = rivers, claimed = claimed} =
     Claim p $ fst $ maximumBy (comparing snd) (traceShowId options) where
         availSites = S.toList $ S.fromList $ allSites $ S.toList rivers
 
