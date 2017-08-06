@@ -224,7 +224,6 @@ class OfflineInterface(object):
         self.name = name
         self.punter_class = punter_class
         self.punter = None
-        self.fd = open('offline' + str(uuid.uuid4()) + '.log', 'w')
 
     def _send(self, msg):
         msg = json.dumps(msg)
@@ -249,7 +248,7 @@ class OfflineInterface(object):
             self.log('error: %s', str(e))
 
     def log(self, message, *args):
-        print >>self.fd, "[%s] %s" % (self.name, (message % map(str, args)))
+        print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
 
     def run(self):
         self._send({'me': self.name})
@@ -284,8 +283,6 @@ class OfflineInterface(object):
                 self.punter.stop(msg)
             except:
                 self.log('error: %s', traceback.format_exc())
-
-        self.fd.close()
 
 
 def MakeInterface(name, punter, offline=False):
