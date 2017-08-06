@@ -84,7 +84,9 @@ class DFSPunter(interface.Punter):
 
 
         # try to grab any mines we can when the game first starts
-        for m in self.mines:
+        mines = list(self.mines)
+        random.shuffle(mines)
+        for m in mines:
             if m in self.visited:
                 continue
             if m not in self.neighbors:
