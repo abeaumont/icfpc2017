@@ -140,11 +140,24 @@ class Punter(object):
 
         self.all_turns.extend(moves)
         for m in moves:
-            if m and 'claim' in m:
+            if not m:
+                continue
+            if 'claim' in m:
                 s = m['claim']['source']
                 t = m['claim']['target']
                 self.available_rivers.discard((s, t))
                 self.available_rivers.discard((t, s))
+            if 'splurge' in m:
+                def pairwise(iterable):
+                    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+                    a, b = itertools.tee(iterable)
+                    next(b, None)
+                    return itertools.izip(a, b)
+
+                for x,y in pairwise(m['splurge']['route']):
+                    self.available_rivers.discard((x,y))
+                    self.available_rivers.discard((y,x))
+
 
     def save_game(self):
         if self.offline:
