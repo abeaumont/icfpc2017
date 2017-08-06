@@ -12,6 +12,5 @@ main = do
     [host, port] <- getArgs
     cm <- mkManager host (read port)
     sock <- mkSocket cm
-    connectSocket cm sock
     scores <- play sock (Player "hspunter" simpleStrategy)
     print scores

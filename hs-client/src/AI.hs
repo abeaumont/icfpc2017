@@ -1,7 +1,8 @@
 module AI
-    ( Strategy, mockStrategy, simpleStrategy, allSites
+    ( Strategy, mockStrategy, simpleStrategy, sitesOf
     ) where
 
+import Control.Arrow (second)
 import Data.List (foldl', maximumBy)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
@@ -24,50 +25,52 @@ type Dist = Int
 type DistMap = M.Map River Dist
 type SiteDistMap = M.Map Site Dist
 
-allSites :: [River] -> [Site]
-allSites [] = []
-allSites ((s, t) : rs) = s:t:allSites rs
+sitesOf :: [River] -> [Site]
+sitesOf [] = []
+sitesOf ((s, t) : rs) = s:t:sitesOf rs
 
 simpleStrategy :: Strategy
 simpleStrategy gs@GS {punter = p, mines = mines, rivers = rivers, claimed = claimed} =
-    Claim p $ fst $ maximumBy (comparing snd) (traceShowId options) where
-        availSites = S.toList $ S.fromList $ allSites $ S.toList rivers
-
-        freeGraph :: Gr () ()
-        freeGraph = undir $ mkUGraph availSites $ S.toList rivers
+    Claim p (traceShow scoreMines bestOption) where
+        allSites, availSites :: S.Set Site
+        availSites = S.fromList $ sitesOf $ S.toList rivers
+        allSites = S.union availSites $ S.fromList $ sitesOf $ M.keys claimed
 
         fullGraph :: Gr () ()
-        fullGraph = undir $ mkUGraph availSites $ S.toList rivers ++ M.keys claimed
+        fullGraph = undir $ mkUGraph (S.toList allSites) $ S.toList rivers ++ M.keys claimed
 
-        options = [(r, score r) | r <- S.toList rivers]
+        freeGraph :: Gr () ()
+        freeGraph = undir $ mkUGraph (S.toList availSites) $ S.toList rivers
 
-        score :: River -> Sc
-        score r@(s, t)
-            | S.null reachableMines = fromMaybe 0 (M.lookup r startMap)
-            | s `S.member` reachable = fromMaybe 0 $ M.lookup t finalScore
-            | t `S.member` reachable = fromMaybe 0 $ M.lookup s finalScore
-            | otherwise = 0
+        --myGraph :: Gr () ()
+        --myGraph = undir $ mkUGraph (S.toList availSites) $ S.toList $ rivers
 
-        ours :: [River]
-        ours = M.keys $ M.filter (== p) claimed
+        ourClaimed :: [River]
+        ourClaimed = M.keys $ M.filter (== p) claimed
 
         reachable :: S.Set Site
-        reachable = S.fromList $ allSites ours
+        reachable = S.fromList $ sitesOf ourClaimed
+
+        goodRiver (s, t) = s `S.member` reachable || t `S.member` reachable || s `S.member` mines || t `S.member` mines
+
+        nextRivers = S.filter goodRiver rivers
+        options = [(r, score r) | r <- S.toList nextRivers]
 
         reachableMines = mines `S.intersection` reachable
-
-        startRivers :: [River]
-        startRivers = [(s, t) | (s, t) <- S.toList rivers, s `S.member` mines || t `S.member` mines]
-
-        startMap :: DistMap
-        startMap = M.fromList [(r, 1) | r <- startRivers]
+        score :: River -> Sc
+        score r@(s, t)
+            | s `S.member` reachable = fromMaybe 0 $ M.lookup t finalScore
+            | t `S.member` reachable = fromMaybe 0 $ M.lookup s finalScore
+            | s `S.member` mines || t `S.member` mines = 1
+            | otherwise = 0
 
         scoreMine :: Site -> SiteDistMap
-        scoreMine mine = depths where
-            depths = M.fromList $ level mine fullGraph
+        scoreMine mine = M.fromList $ map (second (^2)) $ level mine fullGraph
 
         scoreMines :: SiteDistMap
         scoreMines = foldl' (M.unionWith max) M.empty $ map scoreMine $ S.toList reachableMines
 
         finalScore :: SiteDistMap
-        finalScore = M.mapWithKey (\k v -> sum $ map (scoreMines M.!) $ neighbors freeGraph k) scoreMines
+        finalScore = M.mapWithKey (\k v -> v + sum (map (scoreMines M.!) $ neighbors freeGraph k)) scoreMines
+
+        bestOption = if null options then head (S.toList rivers) else fst $ maximumBy (comparing snd) options

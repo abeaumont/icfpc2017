@@ -41,7 +41,7 @@ type DistMap = M.Map River Sc
 geneticStrategy :: Chromosome -> Strategy
 geneticStrategy (Chr (a:b:c:_)) gs@GS {punter = p, mines = mines, rivers = rivers, claimed = claimed} =
     Claim p $ fst $ maximumBy (comparing snd) options where
-        availSites = S.toList $ S.fromList $ allSites $ S.toList rivers
+        availSites = S.toList $ S.fromList $ sitesOf $ S.toList rivers
 
         freeGraph :: Gr () ()
         freeGraph = undir $ mkUGraph availSites $ S.toList rivers
@@ -62,7 +62,7 @@ geneticStrategy (Chr (a:b:c:_)) gs@GS {punter = p, mines = mines, rivers = river
         ours = M.keys $ M.filter (== p) claimed
 
         reachable :: S.Set Site
-        reachable = S.fromList $ allSites ours
+        reachable = S.fromList $ sitesOf ours
 
         reachableMines = mines `S.intersection` reachable
 

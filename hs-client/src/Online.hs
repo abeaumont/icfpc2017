@@ -77,6 +77,3 @@ mkSocket (CM family addr) = do
     sock <- socket family Stream defaultProtocol
     connect sock addr
     return sock
-
-connectSocket :: ConnectionManager -> Socket -> IO ()
-connectSocket (CM family addr) sock = connect sock addr
