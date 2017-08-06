@@ -22,7 +22,9 @@ class Punter(object):
         else:
             self.positions = {}
             for site in state['map'].get('sites', []):
-                self.positions[site['id']] = (site['x'], site['y'])
+                if 'x' in site:
+                    self.positions[site['id']] = (site['x'], site['y'])
+
         self.rivers = state['map'].get('rivers', [])
         self.mines = state['map'].get('mines', [])
         if 'available_rivers' in state:
