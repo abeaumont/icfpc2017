@@ -73,7 +73,6 @@ class Punter(object):
         state['all_turns'] = self.all_turns
         state['neighbors'] = {k: list(v) for k,v in self.neighbors.iteritems()}
         state['distances'] = self.distances
-        state['positions'] = self.positions
         return state
 
     def turn(self, state):

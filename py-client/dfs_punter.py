@@ -92,9 +92,6 @@ class DFSPunter(interface.Punter):
         for m in mines:
             if m in self.visited:
                 continue
-            if m not in self.neighbors:
-                continue
-
             if not m in self.neighbors:
                 continue
 
