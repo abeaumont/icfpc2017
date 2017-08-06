@@ -152,7 +152,11 @@ class Game():
         json_str = json.dumps(json_obj)
         with open(filename, "w") as f:
             f.write(json_str)
+
+        with open("output/game.json", "w") as f:
+            f.write(json_str)
+
         print "{} - save> {} ({})".format(
             datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            helpers.game_url(filename),
+            helpers.game_url("game.json"),
             len(json_str))
