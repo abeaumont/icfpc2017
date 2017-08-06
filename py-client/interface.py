@@ -226,6 +226,7 @@ class Interface(object):
         self.punter_class = punter_class
         self.punter = None
         self.server = server
+        self.debug = False
 
     def _send(self, msg):
         msg = json.dumps(msg)
@@ -247,7 +248,8 @@ class Interface(object):
         return json.loads(line)
 
     def log(self, message, *args):
-        print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
+        if self.debug:
+            print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
 
     def run(self):
         self._send({'me': self.name})

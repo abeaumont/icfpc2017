@@ -37,53 +37,50 @@ offsprings n mother father = replicateM n (offspring mother father)
 type Sc = Float
 type SiteWeights = M.Map Site Sc
 type DistMap = M.Map River Sc
+type SiteDistMap = M.Map Site Sc
 
 geneticStrategy :: Chromosome -> Strategy
 geneticStrategy (Chr (a:b:c:_)) gs@GS {punter = p, mines = mines, rivers = rivers, claimed = claimed} =
-    Claim p $ fst $ maximumBy (comparing snd) options where
-        availSites = S.toList $ S.fromList $ sitesOf $ S.toList rivers
-
-        freeGraph :: Gr () ()
-        freeGraph = undir $ mkUGraph availSites $ S.toList rivers
+    Claim p bestOption where
+        allSites, availSites :: S.Set Site
+        availSites = S.fromList $ sitesOf $ S.toList rivers
+        allSites = S.union availSites $ S.fromList $ sitesOf $ M.keys claimed
 
         fullGraph :: Gr () ()
-        fullGraph = undir $ mkUGraph availSites $ S.toList rivers ++ M.keys claimed
+        fullGraph = undir $ mkUGraph (S.toList allSites) $ S.toList rivers ++ M.keys claimed
 
-        options = [(r, score r) | r <- S.toList rivers]
+        freeGraph :: Gr () ()
+        freeGraph = undir $ mkUGraph (S.toList availSites) $ S.toList rivers
 
-        score :: River -> Sc
-        score r@(s, t)
-            | S.null reachableMines = fromMaybe 0 (M.lookup r startMap)
-            | s `S.member` reachable = fromMaybe 0 $ M.lookup t finalScore
-            | t `S.member` reachable = fromMaybe 0 $ M.lookup s finalScore
-            | otherwise = 0
+        --myGraph :: Gr () ()
+        --myGraph = undir $ mkUGraph (S.toList availSites) $ S.toList $ rivers
 
-        ours :: [River]
-        ours = M.keys $ M.filter (== p) claimed
+        ourClaimed :: [River]
+        ourClaimed = M.keys $ M.filter (== p) claimed
 
         reachable :: S.Set Site
-        reachable = S.fromList $ sitesOf ours
+        reachable = S.fromList $ sitesOf ourClaimed
+
+        goodRiver (s, t) = s `S.member` reachable || t `S.member` reachable || s `S.member` mines || t `S.member` mines
+
+        nextRivers = S.filter goodRiver rivers
+        options = [(r, score r) | r <- S.toList nextRivers]
 
         reachableMines = mines `S.intersection` reachable
+        score :: River -> Sc
+        score r@(s, t)
+            | s `S.member` reachable = fromMaybe 0 $ M.lookup t finalScore
+            | t `S.member` reachable = fromMaybe 0 $ M.lookup s finalScore
+            | s `S.member` mines || t `S.member` mines = a
+            | otherwise = 0
 
-        startRivers :: [River]
-        startRivers = [(s, t) | (s, t) <- S.toList rivers, s `S.member` mines || t `S.member` mines]
+        scoreMine :: Site -> SiteDistMap
+        scoreMine mine = M.fromList $ map (second (fromIntegral . (^2))) $ level mine fullGraph
 
-        startMap :: DistMap
-        startMap = M.fromList [(r, c) | r <- startRivers]
-
-        scoreMine :: Site -> SiteWeights
-        scoreMine mine = depths where
-            depths = M.fromList $ map (second fromIntegral) $ level mine fullGraph
-
-        scoreMines :: SiteWeights
+        scoreMines :: SiteDistMap
         scoreMines = foldl' (M.unionWith max) M.empty $ map scoreMine $ S.toList reachableMines
 
-        scoreNeighbours :: SiteWeights
-        scoreNeighbours = M.mapWithKey (\k v -> sum $ map (scoreMines M.!) $ neighbors freeGraph k) scoreMines
+        finalScore :: SiteDistMap
+        finalScore = M.mapWithKey (\k v -> b * v + c * sum (map (scoreMines M.!) $ neighbors freeGraph k)) scoreMines
 
-        scoreSite :: Site -> Sc
-        scoreSite s = a * (scoreMines M.! s) + b * (scoreNeighbours M.! s)
-
-        finalScore :: SiteWeights
-        finalScore = M.mapWithKey (\k v -> scoreSite k) scoreMines
+        bestOption = if null options then head (S.toList rivers) else fst $ maximumBy (comparing snd) options

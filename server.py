@@ -9,6 +9,7 @@ import SocketServer
 GAME_PORT=9000
 
 import game
+from logger import log
 
 GAME = None
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
@@ -16,6 +17,10 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         pass
 
 class GameHandler(SocketServer.StreamRequestHandler):
+
+    def warn(self, message, *args):
+        print >>sys.stderr, message % map(str, args)
+
     def _recv(self):
         s = ''
         c = self.rfile.read(1)
@@ -23,41 +28,39 @@ class GameHandler(SocketServer.StreamRequestHandler):
             s += c
             c = self.rfile.read(1)
         msg = self.rfile.read(int(s))
-        print '<<<', msg
+        log('<<<', msg)
         return json.loads(msg)
 
     def _send(self, msg):
         msg = json.dumps(msg)
         msg = '{}:{}'.format(len(msg), msg)
-        print '>>>', msg
+        log('>>>', msg)
         self.wfile.write(msg)
         self.wfile.flush()
 
     def handle(self):
-        print "RECEIVED NEW CLIENT"
+        log("RECEIVED NEW CLIENT")
 
 
         # the first thing every client does is identify
 
         try:
             client_id = self._recv()
-            print "CLIENT ID RECEIVED", client_id
+            log("CLIENT ID RECEIVED", client_id)
 
             if "me" in client_id:
                 player_id = client_id["me"]
                 self._send({ "you" : player_id })
-                print "PLAYER HANDSHAKE FINISHED", player_id
+                log("PLAYER HANDSHAKE FINISHED", player_id)
                 GAME.add_player(player_id, self)
             else:
-                print "INITIAL MSG DID NOT CONTAIN 'me' HANDSHAKE, EXITING REQUEST"
+                warn("INITIAL MSG DID NOT CONTAIN 'me' HANDSHAKE, EXITING REQUEST")
                 return
 
         except Exception, e:
             print e
             print "CLIENT DID NOT ESTABLISH HANDSHAKE PROPERLY, EXITING REQUEST"
             return
-
-
 
         self.running = True
 	while self.running:
@@ -70,6 +73,7 @@ SERVER=None
 def serve_game(game_port, HandlerClass = GameHandler):
     global SERVER
     SocketServer.TCPServer.allow_reuse_address = True
+    HandlerClass.debug = False
     gamed = ThreadedTCPServer(("", game_port), HandlerClass)
     print("Serving Game on", game_port)
 

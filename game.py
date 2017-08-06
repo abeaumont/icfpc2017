@@ -7,6 +7,8 @@ import os
 from score import score_game
 from util import *
 
+from logger import log
+
 helpers = __import__("py-client").helpers
 
 class Player():
@@ -21,10 +23,10 @@ class Player():
         if 'state' in msg:
             del msg['state']
         end = time.time()
-        print "{} - {}> {}".format(
+        log("{} - {}> {}".format(
             datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             self.name,
-            end - start)
+            end - start))
         return msg
 
     def get_ready(self, punters, game_map):
@@ -45,7 +47,7 @@ class Player():
 
 
 class Game():
-    def __init__(self, maps, num_players):
+    def __init__(self, maps, num_players, save=False):
         #print "LOADING SERVER..."
         print "Server up for {} players", num_players
 
@@ -55,8 +57,10 @@ class Game():
         self.current_map = 0
         self.num_maps = len(self.maps)
         self.num_players = num_players
+        self.save = save
 
     def add_player(self, player_name, player_request):
+
         with self.l:
             pid = len(self.players)
             player = Player()
@@ -64,10 +68,6 @@ class Game():
             player.id = pid
             player.request = player_request
             self.players[pid] = player
-            print "BEFORE:", len(self.players), "PLAYERS IN THE GAME"
-            print "ADDING PLAYER", player, player.id, player.name
-            print "NOW THEY are", self.players, len(self.players), "PLAYERS IN THE GAME"
-
 
             if len(self.players) == self.num_players:
                 game_thread = threading.Thread(target=self.start)
@@ -133,17 +133,15 @@ class Game():
             datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             ', '.join(['{}: {}'.format(self.players[d['punter']].name, d['score'])
                        for d in scores]))
-        players = self.players.values()
-        for p in sorted(players):
+        self.prev_players = self.players.values()
+        self.players = {}
+        for p in sorted(self.prev_players):
             p.stop(round, scores)
             player.request.running = False
 
         # TODO: evaluate the actual game
-        self.save_game(filename='output/' + os.path.basename(game_map))
-
-        # we reset players after saving game, bc we still need their names
-        self.players = {}
-
+        if self.save:
+            self.save_game(filename='output/' + os.path.basename(game_map))
 
     def save_game(self, filename="output/game.json"):
         try:
@@ -154,8 +152,8 @@ class Game():
         json_obj = {
             "futures": self.futures,
             "turns" : self.all_turns,
-            "num_players" : len(self.players),
-            "players" : [ p.name for i,p in self.players.iteritems() ],
+            "num_players" : len(self.prev_players),
+            "players" : [ p.name for p in self.prev_players ],
             "map" : self.map
         }
         json_str = json.dumps(json_obj)
