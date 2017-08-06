@@ -20,7 +20,8 @@ class DFSPunter(interface.Punter):
         self.visited = {}
 
         if 'visited' in init_state:
-            self.visited = init_state['visited']
+            for k,v in init_state['visited'].iteritems():
+                self.visited[int(k)] = v
         if 'dfs_stack' in init_state:
             self.dfs_stack = init_state['dfs_stack']
 
