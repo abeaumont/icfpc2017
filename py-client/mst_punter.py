@@ -19,10 +19,24 @@ class MSTPunter(interface.Punter):
         for (s, t) in self.own_edges:
             g.add_edge(s, t, weight=0)
         T = nx.minimum_spanning_tree(g)
+        # If the edge is a mine, pick it
+        for e in T.edges():
+            if e in self.available_rivers and (e[0] in self.mines or e[1] in self.mines):
+                self.own_edges.append(e)
+                return self.claim(*e)
+        # If the edge is a connected to an owned node, pick it
+        for e in T.edges():
+            if e in self.available_rivers:
+                for e2 in self.own_edges:
+                    if e[0] == e2[0] or e[0] == e2[1] or e[1] == e2[0] or e[1] == e2[1]:
+                        self.own_edges.append(e)
+                        return self.claim(*e)
+        # If the edge is a available, pick it
         for e in T.edges():
             if e in self.available_rivers:
                 self.own_edges.append(e)
                 return self.claim(*e)
+        # Nothing left in MST, pick any available edge
         e = self.available_rivers.pop()
         self.own_edges.append(e)
         return self.claim(*e)
