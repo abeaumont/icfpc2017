@@ -91,6 +91,8 @@ class DFSPunter(interface.Punter):
         for m in self.mines:
             if m in self.visited:
                 continue
+            if m not in self.neighbors:
+                continue
 
             # we should order the neighbors based on their distance from all
             # the other mines
