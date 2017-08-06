@@ -132,6 +132,10 @@ class Punter(object):
                     if our_score == max_score:
                         self.log("WE ARE WINNER! (OR TYING)")
 
+        else:
+            # moves is not defined
+            return
+
 
 
         self.all_turns.extend(moves)
