@@ -1,4 +1,5 @@
 # this is the actual game handling code
+import time
 import datetime
 import threading
 import json
@@ -14,10 +15,16 @@ class Player():
 
     def get_move(self, prev_round):
         #print "PROMPTING PLAYER FOR MOVE", self.id, "PREV ROUND:", prev_round
+        start = time.time()
         self.request._send({"move": {"moves": prev_round}})
         msg = self.request._recv()
         if 'state' in msg:
             del msg['state']
+        end = time.time()
+        print "{} - {}> {}".format(
+            datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            self.name,
+            end - start)
         return msg
 
     def get_ready(self, punters, game_map):

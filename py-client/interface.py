@@ -17,6 +17,12 @@ class Punter(object):
         self.punters = state['punters']
         self.map = state['map']
         self.sites = {s['id'] for s in state['map'].get('sites', [])}
+        if 'positions' in state:
+            self.positions = state['positions']
+        else:
+            self.positions = {}
+            for site in state['map'].get('sites', []):
+                self.positions[site['id']] = (site['x'], site['y'])
         self.rivers = state['map'].get('rivers', [])
         self.mines = state['map'].get('mines', [])
         if 'available_rivers' in state:
@@ -65,6 +71,7 @@ class Punter(object):
         state['all_turns'] = self.all_turns
         state['neighbors'] = {k: list(v) for k,v in self.neighbors.iteritems()}
         state['distances'] = self.distances
+        state['positions'] = self.positions
         return state
 
     def turn(self, state):
@@ -73,7 +80,7 @@ class Punter(object):
 
     def futures(self):
         """Your futures logic here"""
-        return [{"source": 1, "target": 2}]
+        return []
 
     def stop(self, state):
         self.save_game()
