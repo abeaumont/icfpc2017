@@ -33,10 +33,8 @@ class DFSPunter(interface.Punter):
 
 
         def visit(mine, next_site, neighbor):
-            if next_site > neighbor:
-                edge = (neighbor, next_site)
-            else:
-                edge = (next_site, neighbor)
+            edge = (neighbor, next_site)
+            edge_rev = (next_site, neighbor)
 
             if mine in self.visited:
                 mine = self.visited[mine]
@@ -49,8 +47,9 @@ class DFSPunter(interface.Punter):
             elif abs(self.visited[neighbor]) != abs(mine):
                 should_visit = True
 
+
             # if we aren't connected yet, we try to connect
-            if should_visit and edge in self.available_rivers:
+            if should_visit and (edge in self.available_rivers or edge_rev in self.available_rivers):
                 score = 0
                 this_score = 0
 
@@ -62,13 +61,10 @@ class DFSPunter(interface.Punter):
                         score += self.distances[m][neighbor]**2
                         this_score += self.distances[m][next_site]**2
 
-                self.log("CHECKING IF NEXT SITE IN VISITED")
                 if neighbor in self.visited:
                     next_mine = abs(self.visited[neighbor])
-                    self.log("CONVERTING NODES FROM OTHER TREE")
                     converted = 0
                     if abs(next_mine) != abs(mine):
-                        self.log("MINE IS NOT NEXT MINE!")
                         for node in self.visited.keys():
                             if abs(self.visited[node]) == next_mine:
                                 converted += 1
@@ -76,13 +72,13 @@ class DFSPunter(interface.Punter):
 
                     self.visited[mine] = -mine
                     self.visited[next_mine] = -mine
-                    self.log("CONVERTED %s MINES" % converted)
 
                 heapq.heappush(self.dfs_stack, (this_score, next_site, mine) )
                 heapq.heappush(self.dfs_stack, (score, neighbor, mine) )
 
                 self.visited[neighbor] = abs(mine)
                 self.visited[next_site] = abs(mine)
+
 
                 return self.claim(*edge)
 
@@ -116,11 +112,8 @@ class DFSPunter(interface.Punter):
                 continue
 
             if abs(self.visited[n1]) != abs(self.visited[n2]):
-                self.log("OWNERS ARE %s %s" % (self.visited[n1], self.visited[n2]))
                 ret = visit(self.visited[n1], n1, n2)
                 if ret:
-                    self.log("JOINING TWO TREES %s %s" % (n1, n2))
-                    self.log("NEW OWNERS ARE %s %s" % (self.visited[n1], self.visited[n2]))
                     return ret
 
         # actually execute our DFS STACK
