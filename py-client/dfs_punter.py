@@ -126,19 +126,18 @@ class DFSPunter(interface.Punter):
         # if so, we try to exercise our options
         if self.used_options < len(self.mines) and self.has_options:
             for n1, n2 in self.taken_rivers:
+
                 if n1 not in self.visited:
                     continue
                 if n2 not in self.visited:
                     continue
 
                 if abs(self.visited[n1]) != abs(self.visited[n2]):
-                    ret = visit(self.visited[n1], n1, n2)
-                    if ret:
-                        self.log("USING OPTION! %s %s" % (n1, n2))
-                        self.used_options += 1
-                        self.taken_rivers.discard((n1, n2))
-                        self.taken_rivers.discard((n2, n1))
-                        return self.option(n1,n2)
+                    self.log("USING OPTION! %s %s" % (n1, n2))
+                    self.used_options += 1
+                    self.taken_rivers.discard((n1, n2))
+                    self.taken_rivers.discard((n2, n1))
+                    return self.option(n1,n2)
 
         # actually execute our DFS STACK
         while len(self.dfs_stack):

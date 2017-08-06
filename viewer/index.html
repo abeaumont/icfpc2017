@@ -178,6 +178,12 @@ $(function() {
           var data = turn.claim;
           claim(null, data.source, data.target);
       }
+
+      if (turn.option) {
+        var data = turn.option;
+        claim(null, data.source, data.target);
+
+      }
       $("#turn" + currentTurn).remove();
   }
 
@@ -205,6 +211,14 @@ $(function() {
           $("#log").append($("<div>")
             .attr("id", "turn" + currentTurn)
             .text(getPunterName(turn.pass.punter) + " passed"));
+      } else if (turn.option) {
+        var data = turn.option;
+        claim(data.punter, data.source, data.target);
+        $("#log").append($("<div>")
+          .attr("id", "turn" + currentTurn)
+          .text(getPunterName(data.punter) + " optioned " + data.source + "->" + data.target));
+
+
       }
       currentTurn++;
   }
