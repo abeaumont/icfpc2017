@@ -40,3 +40,7 @@ class MSTPunter(interface.Punter):
         e = self.available_rivers.pop()
         self.own_edges.append(e)
         return self.claim(*e)
+
+if __name__ == '__main__':
+    iface = interface.MakeInterface("Least Punter", MSTPunter)
+    iface.run()

@@ -147,9 +147,11 @@ class Game():
             "futures": self.futures,
             "turns" : self.all_turns,
             "num_players" : len(self.players),
+            "players" : [ p.name for i,p in self.players.iteritems() ],
             "map" : self.map
         }
         json_str = json.dumps(json_obj)
+
         with open(filename, "w") as f:
             f.write(json_str)
 

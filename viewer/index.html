@@ -60,6 +60,7 @@ $(function() {
   var testGame = "../output/" + gameName + ".json";
   var turns, currentTurn;
   var sWrap;
+  var gameInfo;
   var mines;
   var rivers = {};
 
@@ -153,6 +154,7 @@ $(function() {
                   players[i] = "Punter" + (i + 1);
               initGame(players);
               turns = game.turns;
+              gameInfo = game;
               currentTurn = 0;
               $("#log").text("The game was loaded");
 
@@ -179,6 +181,14 @@ $(function() {
       $("#turn" + currentTurn).remove();
   }
 
+  function getPunterName(punter) {
+    if (gameInfo.players) {
+      return gameInfo.players[punter] || punter;
+    }
+
+    return punter;
+  }
+
   function nextTurn() {
       if (currentTurn == turns.length) {
           return;
@@ -186,12 +196,15 @@ $(function() {
       turn = turns[currentTurn];
       if (turn.claim) {
           var data = turn.claim;
-          console.log("DOING TURN", data);
           claim(data.punter, data.source, data.target);
-          $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(data.punter + " claimed " + data.source + "->" + data.target));
+          $("#log").append($("<div>")
+            .attr("id", "turn" + currentTurn)
+            .text(getPunterName(data.punter) + " claimed " + data.source + "->" + data.target));
       } else if (turn.pass) {
 
-          $("#log").append($("<div>").attr("id", "turn" + currentTurn).text(turn.pass.punter + " passed"));
+          $("#log").append($("<div>")
+            .attr("id", "turn" + currentTurn)
+            .text(getPunterName(turn.pass.punter) + " passed"));
       }
       currentTurn++;
   }

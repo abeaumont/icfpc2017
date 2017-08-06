@@ -125,9 +125,13 @@ class Punter(object):
         except OSError:
             pass
 
+        player_names = { self.punter: self.name }
+
+
         json_obj = {
             "turns" : self.all_turns,
             "num_players" : self.punters,
+            "players" : player_names,
             "map" : self.map
         }
 
