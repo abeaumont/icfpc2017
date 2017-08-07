@@ -189,10 +189,10 @@ class GreedyPunter(interface.Punter):
 
             node_owner = None
 
-            if not e[1] in self.sets and e[0] in self.sets:
+            if not str(e[1]) in self.sets['parents'] and str(e[0]) in self.sets['parents']:
                 node_owner = unionfind.find(self.sets, str(e[0]))
                 dest = e[1]
-            elif e[1] in self.sets:
+            elif str(e[1]) in self.sets['parents']:
                 node_owner = unionfind.find(self.sets, str(e[1]))
                 dest = e[0]
 
@@ -202,7 +202,7 @@ class GreedyPunter(interface.Punter):
 
             score = 0
             for m in self.mines:
-                if m in self.sets:
+                if str(m) in self.sets['parents']:
                     mine_owner = unionfind.find(self.sets, str(m))
                     if mine_owner == node_owner:
                         score += self.distances[m][dest]**2
