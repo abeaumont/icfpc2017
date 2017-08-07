@@ -107,8 +107,8 @@ class GreedyPunter(interface.Punter):
                 if n2 not in self.sets:
                     continue
 
-                m1 = unionfind.find(self.sets[n1])[0]
-                m2 = unionfind.find(self.sets[n2])[0]
+                m1 = unionfind.find(self.sets, n1)
+                m2 = unionfind.find(self.sets, n2)
 
                 if m1 != m2:
                     self.log("USING OPTION! %s %s" % (n1, n2))
