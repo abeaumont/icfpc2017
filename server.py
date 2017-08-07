@@ -95,6 +95,7 @@ def main():
     parser.add_argument('-m', '--map', default='maps/circle.json', help='map to use')
     parser.add_argument('-n', type=int, default=2, help='number of players')
     parser.add_argument('-d', '--debug', action='store_true', default=False, help='enable debug output')
+    parser.add_argument('-s', '--save', action='store_true', default=False, help='save game.json file')
     args = parser.parse_args()
     if args.debug:
         enable_logging()
@@ -102,7 +103,7 @@ def main():
     MAP = args.map
     PLAYERS = args.n
     global GAME
-    GAME = game.Game([MAP], PLAYERS)
+    GAME = game.Game([MAP], PLAYERS, save=args.save)
     t = start()
 
     while True:
