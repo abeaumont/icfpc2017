@@ -103,7 +103,6 @@ class GreedyPunter(interface.Punter):
         # if so, we try to exercise our options
         if self.used_options < len(self.mines) and self.has_options:
             for n1, n2 in self.taken_rivers:
-                self.log("CHECKING OPTION! %s %s" % (n1, n2))
 
                 if n1 not in self.sets:
                     continue
@@ -112,7 +111,6 @@ class GreedyPunter(interface.Punter):
 
                 m1 = unionfind.find(self.sets[n1])[0]
                 m2 = unionfind.find(self.sets[n2])[0]
-                self.log("M1 %s, M2 %s" % (m1, m2))
 
                 if m1 != m2:
                     self.log("USING OPTION! %s %s" % (n1, n2))
