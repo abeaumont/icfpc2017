@@ -2,6 +2,7 @@ import math
 import networkx as nx
 import interface
 import unionfind
+import json
 
 def distance(edge):
     x = edge[0]
@@ -19,7 +20,7 @@ class GreedyPunter(interface.Punter):
         if self.sets is None:
             self.sets = unionfind.new()
             for m in self.mines:
-                unionfind.find(self.sets, str(m))
+                unionfind.make(self.sets, str(m))
         self.own_mines = init_state.get('own_mines', [])
 
     def get_state(self):
@@ -30,11 +31,16 @@ class GreedyPunter(interface.Punter):
         return state
 
     def select(self, e):
+        if str(e[0]) not in self.sets['parents']:
+            unionfind.make(self.sets, str(e[0]))
+        if str(e[1]) not in self.sets['parents']:
+            unionfind.make(self.sets, str(e[1]))
         unionfind.union(self.sets, str(e[0]), str(e[1]))
         #self.log('select>>> {}'.format(e))
         self.own_edges.append(e)
 
     def turn(self, state):
+        self.log(json.dumps(self.sets))
         # 1) Try to get rivers connected directly to mine
         g = nx.Graph()
         g.add_nodes_from(self.sites)
@@ -100,6 +106,26 @@ class GreedyPunter(interface.Punter):
             self.select(e)
             return self.claim(*e)
 
+        # 1.5) look through all taken edges and see if the two nodes have different owners
+        # if so, we try to exercise our options
+        if self.used_options < len(self.mines) and self.has_options:
+            for n1, n2 in self.taken_rivers:
+
+                if str(n1) not in self.sets['parents']:
+                    continue
+                if str(n2) not in self.sets['parents']:
+                    continue
+
+                m1 = unionfind.find(self.sets, str(n1))
+                m2 = unionfind.find(self.sets, str(n2))
+
+                if m1 != m2:
+                    self.log("USING OPTION! %s %s" % (n1, n2))
+                    self.used_options += 1
+                    self.taken_rivers.discard((n1, n2))
+                    self.taken_rivers.discard((n2, n1))
+                    return self.option(n1,n2)
+
         # 2) Try to find shortest path between two subgraphs
         next = None
         mind = 10**8
@@ -127,7 +153,7 @@ class GreedyPunter(interface.Punter):
                             mind = d
                             if (src, dst) in self.available_rivers:
                                 next = (src, dst)
-                            else:
+                            elif (dst, src) in self.available_rivers:
                                 next = (dst, src)
                     except:
                         pass
@@ -153,33 +179,13 @@ class GreedyPunter(interface.Punter):
                             mind = d
                             if (src, dst) in self.available_rivers:
                                 next = (src, dst)
-                            else:
+                            elif (dst, src) in self.available_rivers:
                                 next = (dst, src)
                     except:
                         pass
-        if next:
+        if next and next[0] != None:
             self.select(next)
             return self.claim(*next)
-
-        # 3) look through all taken edges and see if the two nodes have different owners
-        # if so, we try to exercise our options
-        if self.used_options < len(self.mines) and self.has_options:
-            for n1, n2 in self.taken_rivers:
-                m1 = unionfind.find(self.sets, str(n1))
-                m2 = unionfind.find(self.sets, str(n2))
-                if m1 is None or m2 is None:
-                    continue
-
-                if m1 != m2:
-                    self.log("USING OPTION! %s %s" % (n1, n2))
-                    self.used_options += 1
-                    self.taken_rivers.discard((n1, n2))
-                    self.taken_rivers.discard((n2, n1))
-                    return self.option(n1,n2)
-
-        # 4) If the edge is a connected to an owned node, pick it
-        next = None
-        mind = 10 ** 8
 
         # we should pick the max possible scoring node, i guess
         best_score = 0
@@ -188,13 +194,18 @@ class GreedyPunter(interface.Punter):
             dest = None
 
             node_owner = None
-
-            if not str(e[1]) in self.sets['parents'] and str(e[0]) in self.sets['parents']:
-                node_owner = unionfind.find(self.sets, str(e[0]))
-                dest = e[1]
-            elif str(e[1]) in self.sets['parents']:
-                node_owner = unionfind.find(self.sets, str(e[1]))
+            if not str(e[0]) in self.sets['parents']:
                 dest = e[0]
+
+            if not str(e[1]) in self.sets['parents']:
+                # if neither e[0] or e[1] are in our sets, continue
+                if dest != None:
+                    continue
+
+                dest = e[1]
+                node_owner = unionfind.find(self.sets, str(e[0]))
+            else:
+                node_owner = unionfind.find(self.sets, str(e[1]))
 
 
             if dest is None:

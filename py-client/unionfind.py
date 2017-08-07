@@ -7,13 +7,16 @@ def new():
     forest['parents'] = {}
     return forest
 
-def find(forest, obj):
-    """Find and return the name of the set containing the object."""
+def make(forest, obj):
+    """Create 1-element set for the object."""
     # check for previously unknown object
     if obj not in forest['parents']:
         forest['parents'][obj] = obj
         forest['weights'][obj] = 1
-        return obj
+    return obj
+
+def find(forest, obj):
+    """Find and return the name of the set containing the object."""
     # find path of objects leading to the root
     path = [obj]
     root = forest['parents'][obj]
