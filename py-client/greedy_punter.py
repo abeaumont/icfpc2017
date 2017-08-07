@@ -15,9 +15,13 @@ class GreedyPunter(interface.Punter):
     def __init__(self, name, init_state, fname=None):
         super(GreedyPunter, self).__init__(name, init_state)
         self.own_edges = init_state.get('own_edges', [])
-        self.sets = init_state.get('sets', None)
-        if self.sets is None:
+        sets = init_state.get('sets', None)
+        self.sets = {}
+        if sets is None:
             self.sets = {m: unionfind.set(m) for m in self.mines}
+        else:
+            for k,v in sets.iteritems():
+                self.sets[int(k)] = v
         self.own_mines = init_state.get('own_mines', [])
 
     def get_state(self):
@@ -179,7 +183,7 @@ class GreedyPunter(interface.Punter):
                                 next = (dst, src)
                     except:
                         pass
-        if next:
+        if next and next[0] != None:
             self.select(next)
             return self.claim(*next)
 
