@@ -11,7 +11,7 @@ from logger import enable_logging
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Launch a punter.')
-    parser.add_argument('-t', '--type', type=str, choices=['rand', 'bfs', 'dfs', 'mst', 'lst', 'greedy'], default='rand',
+    parser.add_argument('-t', '--type', type=str, choices=['rand', 'bfs', 'dfs', 'mst', 'lst', 'greedy', 'hybrid'], default='rand',
                         help='punter type (default rand)')
     parser.add_argument('-H', '--host', type=str, default='punter.inf.ed.ac.uk',
                         help='host to connect to (default Opunter.inf.ed.ac.uk", online mode only)')
