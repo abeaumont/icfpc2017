@@ -8,6 +8,9 @@ def distance(edge):
     y = edge[1]
     return math.sqrt(x * x + y * y)
 
+
+
+
 class GreedyPunter(interface.Punter):
     def __init__(self, name, init_state, fname=None):
         super(GreedyPunter, self).__init__(name, init_state)
@@ -97,26 +100,6 @@ class GreedyPunter(interface.Punter):
             self.select(e)
             return self.claim(*e)
 
-        # 1.5) look through all taken edges and see if the two nodes have different owners
-        # if so, we try to exercise our options
-        if self.used_options < len(self.mines) and self.has_options:
-            for n1, n2 in self.taken_rivers:
-
-                if n1 not in self.sets:
-                    continue
-                if n2 not in self.sets:
-                    continue
-
-                m1 = unionfind.find(self.sets, n1)
-                m2 = unionfind.find(self.sets, n2)
-
-                if m1 != m2:
-                    self.log("USING OPTION! %s %s" % (n1, n2))
-                    self.used_options += 1
-                    self.taken_rivers.discard((n1, n2))
-                    self.taken_rivers.discard((n2, n1))
-                    return self.option(n1,n2)
-
         # 2) Try to find shortest path between two subgraphs
         next = None
         mind = 10**8
@@ -178,27 +161,60 @@ class GreedyPunter(interface.Punter):
             self.select(next)
             return self.claim(*next)
 
-        # 3) Grab any other mines, with largest distances first
-        mines = []
-        for m in self.mines:
-            if m not in self.neighbors: continue
-            for n in self.neighbors[m]:
-                if (n, m) in self.available_rivers:
-                    mines.append((n, m))
-                elif (m, n) in self.available_rivers:
-                    mines.append((m, n))
-        if mines:
-            mines.sort(cmp=lambda e1, e2: int((distance(e1) - distance(e2)) * 100), reverse=True)
-            e = mines[0]
-            self.select(e)
-            return self.claim(*e)
+        # 3) look through all taken edges and see if the two nodes have different owners
+        # if so, we try to exercise our options
+        if self.used_options < len(self.mines) and self.has_options:
+            for n1, n2 in self.taken_rivers:
+                m1 = unionfind.find(self.sets, n1)
+                m2 = unionfind.find(self.sets, n2)
+                if m1 is None or m2 is None:
+                    continue
+
+                if m1 != m2:
+                    self.log("USING OPTION! %s %s" % (n1, n2))
+                    self.used_options += 1
+                    self.taken_rivers.discard((n1, n2))
+                    self.taken_rivers.discard((n2, n1))
+                    return self.option(n1,n2)
+
         # 4) If the edge is a connected to an owned node, pick it
         next = None
         mind = 10 ** 8
+
+        # we should pick the max possible scoring node, i guess
+        best_score = 0
+        best_edge = None
         for e in self.available_rivers:
-            if e[0] in self.sets or e[1] in self.sets:
-                self.select(e)
-                return self.claim(*e)
+            dest = None
+
+            node_owner = None
+
+            if not e[1] in self.sets and e[0] in self.sets:
+                node_owner = unionfind.find(self.sets, e[0])
+                dest = e[1]
+            elif e[1] in self.sets:
+                node_owner = unionfind.find(self.sets, e[1])
+                dest = e[0]
+
+
+            if dest is None:
+                continue
+
+            score = 0
+            for m in self.mines:
+                if m in self.sets:
+                    mine_owner = unionfind.find(self.sets, m)
+                    if mine_owner == node_owner:
+                        score += self.distances[m][dest]**2
+
+            if score > best_score:
+                best_score = score
+                best_edge = e
+
+
+        if best_edge:
+            self.select(best_edge)
+            return self.claim(*best_edge)
 
         # 5) Pick any available edge
         e = self.available_rivers.pop()
