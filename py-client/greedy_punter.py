@@ -8,6 +8,9 @@ def distance(edge):
     y = edge[1]
     return math.sqrt(x * x + y * y)
 
+
+
+
 class GreedyPunter(interface.Punter):
     def __init__(self, name, init_state, fname=None):
         super(GreedyPunter, self).__init__(name, init_state)
@@ -180,28 +183,50 @@ class GreedyPunter(interface.Punter):
             self.select(next)
             return self.claim(*next)
 
-        # 3) Grab any other mines, with largest distances first
-        mines = []
-        for m in self.mines:
-            if m not in self.neighbors: continue
-            for n in self.neighbors[m]:
-                if (n, m) in self.available_rivers:
-                    mines.append((n, m))
-                elif (m, n) in self.available_rivers:
-                    mines.append((m, n))
-        if mines:
-            mines.sort(cmp=lambda e1, e2: int((distance(e1) - distance(e2)) * 100), reverse=True)
-            e = mines[0]
-            self.select(e)
-            return self.claim(*e)
         # 4) If the edge is a connected to an owned node, pick it
         next = None
         mind = 10 ** 8
+
+        # we should pick the max possible scoring node, i guess
+        best_score = 0
+        best_edge = None
         for e in self.available_rivers:
-            if e[0] in self.sets or e[1] in self.sets:
-                self.select(e)
-                return self.claim(*e)
-        
+            dest = None
+
+            node_owner = None
+            if not e[0] in self.sets:
+                dest = e[0]
+
+            if not e[1] in self.sets:
+                # if neither e[0] or e[1] are in our sets, continue
+                if dest != None:
+                    continue
+
+                dest = e[1]
+                node_owner = unionfind.find(self.sets[e[0]])[0]
+            else:
+                node_owner = unionfind.find(self.sets[e[1]])[0]
+
+
+            if dest is None:
+                continue
+
+            score = 0
+            for m in self.mines:
+                if m in self.sets:
+                    mine_owner = unionfind.find(self.sets[m])[0]
+                    if mine_owner == node_owner:
+                        score += self.distances[m][dest]**2
+
+            if score > best_score:
+                best_score = score
+                best_edge = e
+
+
+        if best_edge:
+            self.select(best_edge)
+            return self.claim(*best_edge)
+
         # 5) Pick any available edge
         e = self.available_rivers.pop()
         self.select(e)

@@ -9,7 +9,7 @@ def HybridPunter(name, init_state):
 
     density = float(len(rivers)) / float(len(sites))
 
-    if density < 1.5 and len(sites) < 200:
+    if density < 1.75 and len(sites) < 200:
         return greedy_punter.GreedyPunter(name, init_state)
     else:
         return dfs_punter.DFSPunter(name, init_state)
