@@ -6,6 +6,7 @@ import traceback
 import uuid
 
 from helpers import game_url
+from logger import log
 from collections import deque
 import itertools
 
@@ -226,12 +227,11 @@ class Interface(object):
         self.punter_class = punter_class
         self.punter = None
         self.server = server
-        self.debug = False
 
     def _send(self, msg):
         msg = json.dumps(msg)
         msg = '{}:{}'.format(len(msg), msg)
-        self.log('sending message: %s', msg)
+        log('sending message: %s', msg)
         self.server.write(msg)
         self.server.flush()
 
@@ -242,21 +242,17 @@ class Interface(object):
             s += c
             c = self.server.read(1)
         line = self.server.read(int(s))
-        self.log('receiving message: %s', line)
+        log('receiving message: %s', line)
         if not line:
             raise EOFError()
         return json.loads(line)
-
-    def log(self, message, *args):
-        if self.debug:
-            print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
 
     def run(self):
         self._send({'me': self.name})
         self._recv()
         init = self._recv()
 
-        self.log("init: %s", str(init))
+        log("init: %s", str(init))
 
         self.punter = self.punter_class(self.name, init)
 
@@ -291,7 +287,7 @@ class OfflineInterface(object):
     def _send(self, msg):
         msg = json.dumps(msg)
         msg = '{}:{}'.format(len(msg), msg)
-        self.log('sending message: %s', msg)
+        log('sending message: %s', msg)
         sys.stdout.write(msg)
         sys.stdout.flush()
 
@@ -302,16 +298,13 @@ class OfflineInterface(object):
             s += c
             c = sys.stdin.read(1)
         line = sys.stdin.read(int(s))
-        self.log('receiving message: %s', line)
+        log('receiving message: %s', line)
         if not line:
             raise EOFError()
         try:
             return json.loads(line)
         except e:
-            self.log('error: %s', str(e))
-
-    def log(self, message, *args):
-        print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
+            log('error: %s', str(e))
 
     def run(self):
         self._send({'me': self.name})
@@ -334,7 +327,7 @@ class OfflineInterface(object):
                     msg['futures'] = self.punter.futures()
                 self._send(msg)
             except:
-                self.log('error: %s', traceback.format_exc())
+                log('error: %s', traceback.format_exc())
         elif 'move' in msg:
             try:
                 self.punter = self.punter_class(self.name, msg['state'])
@@ -347,7 +340,7 @@ class OfflineInterface(object):
                 msg['state'] = self.punter.get_state()
                 self._send(msg)
             except:
-                self.log('error: %s', traceback.format_exc())
+                log('error: %s', traceback.format_exc())
         elif 'stop' in msg:
             try:
                 self.punter = self.punter_class(self.name, msg['state'])
@@ -358,7 +351,7 @@ class OfflineInterface(object):
                 self.punter.upkeep_punter(msg)
                 self.punter.stop(msg)
             except:
-                self.log('error: %s', traceback.format_exc())
+                log('error: %s', traceback.format_exc())
 
 
 def MakeInterface(name, punter, offline=False):

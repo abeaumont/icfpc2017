@@ -9,7 +9,7 @@ import SocketServer
 GAME_PORT=9000
 
 import game
-from logger import log
+from logger import *
 
 GAME = None
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
@@ -18,9 +18,6 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 class GameHandler(SocketServer.StreamRequestHandler):
 
-    def warn(self, message, *args):
-        print >>sys.stderr, message % map(str, args)
-
     def _recv(self):
         s = ''
         c = self.rfile.read(1)
@@ -28,13 +25,13 @@ class GameHandler(SocketServer.StreamRequestHandler):
             s += c
             c = self.rfile.read(1)
         msg = self.rfile.read(int(s))
-        log('<<<', msg)
+        log('<<<' + msg)
         return json.loads(msg)
 
     def _send(self, msg):
         msg = json.dumps(msg)
         msg = '{}:{}'.format(len(msg), msg)
-        log('>>>', msg)
+        log('>>>' + msg)
         self.wfile.write(msg)
         self.wfile.flush()
 
@@ -46,15 +43,15 @@ class GameHandler(SocketServer.StreamRequestHandler):
 
         try:
             client_id = self._recv()
-            log("CLIENT ID RECEIVED", client_id)
+            log("CLIENT ID RECEIVED %s", client_id)
 
             if "me" in client_id:
                 player_id = client_id["me"]
                 self._send({ "you" : player_id })
-                log("PLAYER HANDSHAKE FINISHED", player_id)
+                log("PLAYER HANDSHAKE FINISHED %s", player_id)
                 GAME.add_player(player_id, self)
             else:
-                warn("INITIAL MSG DID NOT CONTAIN 'me' HANDSHAKE, EXITING REQUEST")
+                print "INITIAL MSG DID NOT CONTAIN 'me' HANDSHAKE, EXITING REQUEST"
                 return
 
         except Exception, e:
@@ -97,7 +94,11 @@ def main():
     parser = argparse.ArgumentParser(description='Game Server.')
     parser.add_argument('-m', '--map', default='maps/circle.json', help='map to use')
     parser.add_argument('-n', type=int, default=2, help='number of players')
+    parser.add_argument('-d', '--debug', action='store_true', default=False, help='enable debug output')
     args = parser.parse_args()
+    if args.debug:
+        enable_logging()
+
     MAP = args.map
     PLAYERS = args.n
     global GAME

@@ -24,6 +24,7 @@ data GameState = GS
     , mines :: !(S.Set Site)
     , rivers :: !(S.Set River)
     , claimed :: !(M.Map River Punter)
+    , options :: !(M.Map River Punter)
     }
 
 data JsonRiver = JR Site Site
@@ -38,7 +39,7 @@ instance FromJSON GameState where
         mines <- mapObj .: "mines"
         jrivers <- mapObj .: "rivers"
         let rivers = map (\(JR s t) -> (s, t)) jrivers
-        return $ GS punter punters (S.fromList mines) (S.fromList rivers) M.empty
+        return $ GS punter punters (S.fromList mines) (S.fromList rivers) M.empty M.empty
 
 newtype Handshake = Handshake String
     deriving Show
@@ -46,7 +47,7 @@ newtype Handshake = Handshake String
 instance FromJSON Handshake where
     parseJSON = withObject "Handshake" $ \v -> Handshake <$> v .: "you"
 
-data Move = Claim !Punter !River | Pass !Punter
+data Move = Claim !Punter !River | Pass !Punter | Option !Punter !River
 instance FromJSON Move where
     parseJSON = withObject "Move" $ \v -> (do
         move <- v .: "claim"
@@ -58,9 +59,17 @@ instance FromJSON Move where
         move <- v .: "pass"
         punter <- move .: "punter"
         return $ Pass punter)
+        <|> (do
+        move <- v .: "option"
+        punter <- move .: "punter"
+        source <- move .: "source"
+        target <- move .: "target"
+        return $ Option punter (source, target))
 
 instance ToJSON Move where
     toJSON (Claim punter (source, target)) =
+        object ["claim" .= object ["punter" .= punter, "source" .= source, "target" .= target]]
+    toJSON (Option punter (source, target)) =
         object ["claim" .= object ["punter" .= punter, "source" .= source, "target" .= target]]
     toJSON (Pass punter) =
         object ["pass" .= object ["punter" .= punter]]
@@ -99,6 +108,8 @@ makeMove :: GameState -> Move -> GameState
 makeMove gs (Pass _) = gs
 makeMove gs@GS {rivers = rivers, claimed = claimed} (Claim p r) =
     gs {rivers = S.delete r rivers, claimed = M.insert r p claimed}
+makeMove gs@GS {rivers = rivers, options = options} (Option p r) =
+    gs {rivers = S.delete r rivers, options = M.insert r p options}
 
 strategy :: GameState -> Move
 strategy gs@GS {punter = p, rivers = rivers} = Claim p $ S.findMin rivers

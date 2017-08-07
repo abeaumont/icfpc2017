@@ -7,6 +7,7 @@ import mst_punter
 import lst_punter
 import greedy_punter
 import hybrid_punter
+from logger import enable_logging
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Launch a punter.')
@@ -20,7 +21,12 @@ if __name__ == '__main__':
                         help='bot name')
     parser.add_argument('-o', '--offline', action="store_true",
                         help='offline mode (default online)')
+    parser.add_argument('-d', '--debug', action='store_true', default=False,
+                        help='enable debug output')
+
     args = parser.parse_args()
+    if args.debug:
+        enable_logging()
     if args.type == 'dfs':
         punter = dfs_punter.DFSPunter
     elif args.type == 'bfs':
