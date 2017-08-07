@@ -19,7 +19,7 @@ class GreedyPunter(interface.Punter):
         if self.sets is None:
             self.sets = unionfind.new()
             for m in self.mines:
-                unionfind.find(self.sets, m)
+                unionfind.find(self.sets, str(m))
         self.own_mines = init_state.get('own_mines', [])
 
     def get_state(self):
@@ -30,7 +30,7 @@ class GreedyPunter(interface.Punter):
         return state
 
     def select(self, e):
-        unionfind.union(self.sets, e[0], e[1])
+        unionfind.union(self.sets, str(e[0]), str(e[1]))
         #self.log('select>>> {}'.format(e))
         self.own_edges.append(e)
 
@@ -44,7 +44,7 @@ class GreedyPunter(interface.Punter):
             g.add_edge(s, t, weight=0)
         subgraphs = set()
         for m in self.mines:
-            s = unionfind.find(self.sets, m)
+            s = unionfind.find(self.sets, str(m))
             subgraphs.add(s)
         mines = []
         for m in self.mines:
@@ -104,7 +104,7 @@ class GreedyPunter(interface.Punter):
         next = None
         mind = 10**8
         for (s, t) in self.own_edges:
-            parent = unionfind.find(self.sets, s)
+            parent = unionfind.find(self.sets, str(s))
             for sg in subgraphs:
                 if parent != sg:
                     try:
@@ -113,12 +113,12 @@ class GreedyPunter(interface.Punter):
                         src = None
                         dst = None
                         for i in p:
-                            if i not in self.sets['parents'] or unionfind.find(self.sets, i) not in [parent, sg]:
+                            if str(i) not in self.sets['parents'] or unionfind.find(self.sets, str(i)) not in [parent, sg]:
                                 d += 1
                                 if dst is None:
                                     dst = i
                             elif d == 1:
-                                if unionfind.find(self.sets, i) == parent:
+                                if unionfind.find(self.sets, str(i)) == parent:
                                     src = i
                                 elif dst is None:
                                     dst = i
@@ -139,12 +139,12 @@ class GreedyPunter(interface.Punter):
                         src = None
                         dst = None
                         for i in p:
-                            if i not in self.sets['parents'] or unionfind.find(self.sets, i) not in [parent, sg]:
+                            if str(i) not in self.sets['parents'] or unionfind.find(self.sets, str(i)) not in [parent, sg]:
                                 d += 1
                                 if dst is None:
                                     dst = i
                             elif d == 1:
-                                if unionfind.find(self.sets, i) == parent:
+                                if unionfind.find(self.sets, str(i)) == parent:
                                     src = i
                                 elif dst is None:
                                     dst = i
@@ -165,8 +165,8 @@ class GreedyPunter(interface.Punter):
         # if so, we try to exercise our options
         if self.used_options < len(self.mines) and self.has_options:
             for n1, n2 in self.taken_rivers:
-                m1 = unionfind.find(self.sets, n1)
-                m2 = unionfind.find(self.sets, n2)
+                m1 = unionfind.find(self.sets, str(n1))
+                m2 = unionfind.find(self.sets, str(n2))
                 if m1 is None or m2 is None:
                     continue
 
@@ -190,10 +190,10 @@ class GreedyPunter(interface.Punter):
             node_owner = None
 
             if not e[1] in self.sets and e[0] in self.sets:
-                node_owner = unionfind.find(self.sets, e[0])
+                node_owner = unionfind.find(self.sets, str(e[0]))
                 dest = e[1]
             elif e[1] in self.sets:
-                node_owner = unionfind.find(self.sets, e[1])
+                node_owner = unionfind.find(self.sets, str(e[1]))
                 dest = e[0]
 
 
@@ -203,7 +203,7 @@ class GreedyPunter(interface.Punter):
             score = 0
             for m in self.mines:
                 if m in self.sets:
-                    mine_owner = unionfind.find(self.sets, m)
+                    mine_owner = unionfind.find(self.sets, str(m))
                     if mine_owner == node_owner:
                         score += self.distances[m][dest]**2
 
