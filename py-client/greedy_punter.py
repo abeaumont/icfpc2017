@@ -98,6 +98,29 @@ class GreedyPunter(interface.Punter):
                 self.own_mines.append(e[1])
             self.select(e)
             return self.claim(*e)
+
+        # 1.5) look through all taken edges and see if the two nodes have different owners
+        # if so, we try to exercise our options
+        if self.used_options < len(self.mines) and self.has_options:
+            for n1, n2 in self.taken_rivers:
+                self.log("CHECKING OPTION! %s %s" % (n1, n2))
+
+                if n1 not in self.sets:
+                    continue
+                if n2 not in self.sets:
+                    continue
+
+                m1 = unionfind.find(self.sets[n1])[0]
+                m2 = unionfind.find(self.sets[n2])[0]
+                self.log("M1 %s, M2 %s" % (m1, m2))
+
+                if m1 != m2:
+                    self.log("USING OPTION! %s %s" % (n1, n2))
+                    self.used_options += 1
+                    self.taken_rivers.discard((n1, n2))
+                    self.taken_rivers.discard((n2, n1))
+                    return self.option(n1,n2)
+
         # 2) Try to find shortest path between two subgraphs
         next = None
         mind = 10**8
