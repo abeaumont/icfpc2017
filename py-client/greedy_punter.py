@@ -153,7 +153,7 @@ class GreedyPunter(interface.Punter):
                             mind = d
                             if (src, dst) in self.available_rivers:
                                 next = (src, dst)
-                            else:
+                            elif (dst, src) in self.available_rivers:
                                 next = (dst, src)
                     except:
                         pass
@@ -179,17 +179,13 @@ class GreedyPunter(interface.Punter):
                             mind = d
                             if (src, dst) in self.available_rivers:
                                 next = (src, dst)
-                            else:
+                            elif (dst, src) in self.available_rivers:
                                 next = (dst, src)
                     except:
                         pass
         if next and next[0] != None:
             self.select(next)
             return self.claim(*next)
-
-        # 4) If the edge is a connected to an owned node, pick it
-        next = None
-        mind = 10 ** 8
 
         # we should pick the max possible scoring node, i guess
         best_score = 0
