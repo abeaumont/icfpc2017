@@ -61,6 +61,8 @@ class GreedyPunter(interface.Punter):
                     mines.append((n, m))
                 elif (m, n) in self.available_rivers:
                     mines.append((m, n))
+
+
         if mines:
             def cmp(e1, e2):
                 if e1[0] in self.mines and e1[1] in self.mines and e2[0] in self.mines and e2[1] in self.mines:
@@ -124,6 +126,7 @@ class GreedyPunter(interface.Punter):
                     self.used_options += 1
                     self.taken_rivers.discard((n1, n2))
                     self.taken_rivers.discard((n2, n1))
+                    self.select((n1, n2))
                     return self.option(n1,n2)
 
         # 2) Try to find shortest path between two subgraphs

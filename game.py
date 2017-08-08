@@ -16,7 +16,10 @@ class Player():
     def get_move(self, prev_round):
         #print "PROMPTING PLAYER FOR MOVE", self.id, "PREV ROUND:", prev_round
         start = time.time()
-        self.request._send({"move": {"moves": prev_round}})
+        self.request._send({
+            'move': {'moves': prev_round},
+            'settings': {'futures': True, 'options': True}
+        })
         msg = self.request._recv()
         if 'state' in msg:
             del msg['state']

@@ -20,6 +20,7 @@ class Punter(object):
 
 
 
+        self.fd = sys.stderr
         self.name = name
         self.punter = state['punter']
         self.punters = state['punters']
@@ -123,7 +124,7 @@ class Punter(object):
         return {'pass': {'punter': self.punter}}
 
     def log(self, message, *args):
-        print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
+        print >>self.fd, "[%s] %s" % (self.name, (message % map(str, args)))
 
     def calc_distances_for_mine(self, m):
         seen, todo = { m: 0 }, deque([(m, 0)])
@@ -316,31 +317,34 @@ class OfflineInterface(object):
         self._send({'me': self.name})
         msg = self._recv()
         msg = self._recv()
+
+        def offline_init(state):
+            self.punter = self.punter_class(self.name, state)
+            self.punter.offline = True
+            self.punter.fd = self.fd
+
+            settings = msg.get('settings', {})
+
+            self.punter.has_options = settings.get('options', False)
+            self.punter.has_futures = settings.get('futures', False)
+
         if 'punter' in msg:
             try:
-                self.punter = self.punter_class(self.name, msg)
-                self.punter.offline = True
-                settings = msg.get('settings', {})
-
-                if settings.get('options', False):
-                    self.punter.has_options = True
+                offline_init(msg)
 
                 msg = {
                     'ready': msg['punter'],
                     'state': self.punter.get_state()
                 }
-                if settings.get('futures', False):
+
+                if self.punter.has_futures:
                     msg['futures'] = self.punter.futures()
                 self._send(msg)
             except:
                 self.log('error: %s', traceback.format_exc())
         elif 'move' in msg:
             try:
-                self.punter = self.punter_class(self.name, msg['state'])
-                self.punter.offline = True
-                settings = msg.get('settings', {})
-                if settings.get('options', False):
-                    self.punter.has_options = True
+                offline_init(msg['state'])
                 self.punter.upkeep_punter(msg)
                 msg = self.punter.turn(msg)
                 msg['state'] = self.punter.get_state()
@@ -349,11 +353,7 @@ class OfflineInterface(object):
                 self.log('error: %s', traceback.format_exc())
         elif 'stop' in msg:
             try:
-                self.punter = self.punter_class(self.name, msg['state'])
-                self.punter.offline = True
-                settings = msg.get('settings', {})
-                if settings.get('options', False):
-                    self.punter.has_options = True
+                offline_init(msg['state'])
                 self.punter.upkeep_punter(msg)
                 self.punter.stop(msg)
             except:
