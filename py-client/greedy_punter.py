@@ -52,6 +52,8 @@ class GreedyPunter(interface.Punter):
         for m in self.mines:
             s = unionfind.find(self.sets[m])
             subgraphs.add(s[0])
+
+        self.log("SUBGRAPHS ARE %s" % (repr(subgraphs)))
         mines = []
         for m in self.mines:
             if m in self.own_mines: continue
@@ -73,16 +75,16 @@ class GreedyPunter(interface.Punter):
                     return -1
                 if e1[0] in self.mines:
                     e1s = e1[1]
-                    e1m = e1[0]
+                    e1m = unionfind.find(self.sets[e1[0]])[0]
                 else:
                     e1s = e1[0]
-                    e1m = e1[1]
+                    e1m = unionfind.find(self.sets[e1[1]])[0]
                 if e2[0] in self.mines:
                     e2s = e2[1]
-                    e2m = e1[0]
+                    e2m = unionfind.find(self.sets[e1[0]])[0]
                 else:
                     e2s = e2[0]
-                    e2m = e1[1]
+                    e2m = unionfind.find(self.sets[e1[1]])[0]
                 d1, d2 = 10**8, 10**8
                 for s in subgraphs:
                     if e1m == s: continue
@@ -99,6 +101,7 @@ class GreedyPunter(interface.Punter):
                     except:
                         pass
                 return d1 - d2
+
             mines.sort(cmp=cmp)
             e = mines[0]
             if e[0] in self.mines:
