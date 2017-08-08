@@ -81,10 +81,10 @@ class GreedyPunter(interface.Punter):
                     e1m = unionfind.find(self.sets[e1[1]])[0]
                 if e2[0] in self.mines:
                     e2s = e2[1]
-                    e2m = unionfind.find(self.sets[e1[0]])[0]
+                    e2m = unionfind.find(self.sets[e2[0]])[0]
                 else:
                     e2s = e2[0]
-                    e2m = unionfind.find(self.sets[e1[1]])[0]
+                    e2m = unionfind.find(self.sets[e2[1]])[0]
                 d1, d2 = 10**8, 10**8
                 for s in subgraphs:
                     if e1m == s: continue
