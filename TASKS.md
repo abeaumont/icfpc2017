@@ -92,11 +92,4 @@ Day 3:
 14. howLikelyToLinkMines - ?how to compute
 15. ? -- ?fast enough
 
-###### Terms
-* -r-: unclaimed river/blue river r
-* =r=: your river/green river r
-* xrx: enemy river/grey river r
-* "link" (nn/vb): "is-claimed/claim an adjacent edge between" eg: 1=r=2  r is a link from 1 to 2
-* "bridge" (nn/vb): "is-reachable/make reachable (connected)" eg 1===2-r-3===4 r is an unclaimed bridge from 1 to 4
-
 O(3632) rivers, O(2389) sites in examples, 2s movetimelimit .'. features in O(V^2)
