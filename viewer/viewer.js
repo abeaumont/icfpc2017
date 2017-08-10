@@ -17,9 +17,9 @@ if (gameName.charAt(gameName.length - 1) == "/") {
     gameName = gameName.slice(0, -1);
 }
 var testGame = "../output/" + gameName + ".json";
-var TURNS, CURRENT_TURN;
-var sWrap;
-var gameInfo;
+var TURNS, CURRENT_TURN, SCORES;
+var SIGMA_WRAPPER;
+var GAME_INFO;
 var mines;
 var rivers = {};
 
@@ -37,18 +37,11 @@ var siteColor = '#fff';//white site
 
 function initGame(players) {
     rivers = {};
-    for (var i in players) {
-        var row =
-            $("<tr>")
-                .append($("<td>").append($("<font>").attr("color", colors[i]).text(players[i])))
-                .append($("<td>").text(0));
-        $("#scoreboard").after(row);
-    }
 }
 
 function claim(player, source, target) {
     var river = rivers[source + ";" + target] || rivers[target + ";" + source];
-    var edge = sWrap.graph.edges(river);
+    var edge = SIGMA_WRAPPER.graph.edges(river);
     edge.color = colors[player + 1];
     if (player === null) {
         edge.color = edgeColor;
@@ -57,7 +50,7 @@ function claim(player, source, target) {
         edge.color = colors[player];
         edge.size = 10;
     }
-    sWrap.refresh();
+    SIGMA_WRAPPER.refresh();
 }
 
 function mapToSigma(obj) {
@@ -89,21 +82,21 @@ function loadGraph(path) {
     $.getJSON({
         url: path,
         success: function(response) {
-            sWrap.graph.clear();
-            sWrap.graph.read(mapToSigma(response));
-            sWrap.refresh();
+            SIGMA_WRAPPER.graph.clear();
+            SIGMA_WRAPPER.graph.read(mapToSigma(response));
+            SIGMA_WRAPPER.refresh();
         }
     });
 }
 
 function loadGame(path) {
     $("#graph-container").empty();
-    sWrap = new sigma("graph-container");
-    sWrap.settings({"minNodeSize": 1, "maxNodeSize": 8,
+    SIGMA_WRAPPER = new sigma("graph-container");
+    SIGMA_WRAPPER.settings({"minNodeSize": 1, "maxNodeSize": 8,
                     "minEdgeSize": 0.1, "maxEdgeSize": 5,
                     "defaultLabelColor": "#aaaaaa", "labelHoverColor": "#ffffff",
                     "labelThreshold": 0});
-    sWrap.cameras[0].goTo({ x: 0, y: 0, angle: 0, ratio: 2 });
+    SIGMA_WRAPPER.cameras[0].goTo({ x: 0, y: 0, angle: 0, ratio: 2 });
 
     $.getJSON({
         url: path,
@@ -113,17 +106,18 @@ function loadGame(path) {
                 players[i] = "Punter" + (i + 1);
             initGame(players);
             TURNS = game.turns;
-            gameInfo = game;
+            SCORES = game.scores || {};
+            GAME_INFO = game;
             CURRENT_TURN = 0;
             $("#log").text("The game was loaded");
 
             console.log("GAME IS", game);
 
             if (game.map) {
-              sWrap.graph.read(mapToSigma(game.map));
+              SIGMA_WRAPPER.graph.read(mapToSigma(game.map));
             }
 
-            sWrap.refresh();
+            SIGMA_WRAPPER.refresh();
         }
     });
 }
@@ -147,51 +141,72 @@ function prevTurn() {
 }
 
 function getPunterName(punter) {
-  if (gameInfo.players) {
-    return gameInfo.players[punter] || punter;
+  if (GAME_INFO.players) {
+    return GAME_INFO.players[punter] || punter;
   }
 
   return punter;
 }
 
-function getScore(CURRENT_TURN, punter, scores) {
+function drawScoreBoard() {
 
+  if (SCORES[CURRENT_TURN]) {
+    $("#scoreboard").empty();
+    for (var i in SCORES[CURRENT_TURN]) {
+      var info = SCORES[CURRENT_TURN][i];
+      var row =
+          $("<div style='margin-left: 10px'>");
+
+      row
+        .append(info.score + " - ");
+
+      row
+        .append(getPunterName(info.punter));
+
+
+      $("#scoreboard").append(row);
+    }
+  }
+
+}
+
+function updateGameLog(turn, data) {
+      var logEl = $("#log");
+      if (turn.claim) {
+        logEl.append($("<div>")
+          .attr("id", "turn" + CURRENT_TURN)
+          .text(getPunterName(data.punter) + " claimed " + data.source + "->" + data.target));
+      } else if (turn.pass) {
+        logEl.append($("<div>")
+          .attr("id", "turn" + CURRENT_TURN)
+          .text(getPunterName(turn.pass.punter) + " passed"));
+
+      } else if (turn.option) {
+        logEl.append($("<div>")
+          .attr("id", "turn" + CURRENT_TURN)
+          .text(getPunterName(data.punter) + " optioned " + data.source + "->" + data.target));
+
+      }
 }
 
 function nextTurn() {
     if (CURRENT_TURN == TURNS.length) {
         return;
     }
-    var logEl = $("#log");
+
     turn = TURNS[CURRENT_TURN];
+    var data;
+
     if (turn.claim) {
-        var data = turn.claim;
+        data = turn.claim;
         claim(data.punter, data.source, data.target);
-        logEl.append($("<div>")
-          .attr("id", "turn" + CURRENT_TURN)
-          .text(getPunterName(data.punter) + " claimed " + data.source + "->" + data.target));
-
-        var score = getScore(CURRENT_TURN, data.punter);
-
-        if (score) {
-          logEl.append(score);
-        }
-
-
-    } else if (turn.pass) {
-
-        $("#log").append($("<div>")
-          .attr("id", "turn" + CURRENT_TURN)
-          .text(getPunterName(turn.pass.punter) + " passed"));
     } else if (turn.option) {
-      var data = turn.option;
-      claim(data.punter, data.source, data.target);
-      $("#log").append($("<div>")
-        .attr("id", "turn" + CURRENT_TURN)
-        .text(getPunterName(data.punter) + " optioned " + data.source + "->" + data.target));
-
-
+        data = turn.option;
+        claim(data.punter, data.source, data.target);
     }
+
+    drawScoreBoard();
+    updateGameLog(turn, data);
     CURRENT_TURN++;
 }
 
