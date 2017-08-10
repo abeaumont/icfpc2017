@@ -93,6 +93,7 @@ class Game():
         )
         players = len(self.players)
         self.all_turns = []
+        self.all_scores = []
         self.futures = []
 
         for i, player in self.players.iteritems():
@@ -106,6 +107,8 @@ class Game():
 
         player_turn = 0
         round = [{"pass": {"punter": player}} for player in range(1, players)]
+        mines = self.map['mines'] if 'mines' in self.map else []
+        rivers = self.map['rivers'] if 'rivers' in self.map else []
         for i in range(turns):
             player = self.players[i % players]
             turn = {"pass": {"punter": player_turn}}
@@ -118,14 +121,23 @@ class Game():
             round.append(turn)
             self.all_turns.append(turn)
 
+            # TODO: put behind flag for large maps
+            scores = [{"punter": p, "score": s}
+                      for p, s in zip(range(players),
+                                      score_game(mines,
+                                          conv_rivers(rivers),
+                                          to_claimed_rivers(self.all_turns)))]
+            self.all_scores.append(scores)
+
+
+
+
             if len(round) > players:
                 round.pop(0)
 
             # end of turn book keeping
             player_turn += 1
 
-        mines = self.map['mines'] if 'mines' in self.map else []
-        rivers = self.map['rivers'] if 'rivers' in self.map else []
         scores = [{"punter": p, "score": s}
                   for p, s in zip(range(players),
                                   score_game(mines,
@@ -157,6 +169,7 @@ class Game():
         json_obj = {
             "futures": self.futures,
             "turns" : self.all_turns,
+            "scores" : self.all_scores,
             "num_players" : len(self.players),
             "players" : [ p.name for i,p in self.players.iteritems() ],
             "map" : self.map
