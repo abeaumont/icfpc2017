@@ -126,6 +126,7 @@ function prevTurn() {
     if (CURRENT_TURN == 0)
         return;
     CURRENT_TURN--;
+    drawScoreBoard(CURRENT_TURN-1);
     turn = TURNS[CURRENT_TURN];
     if (turn.claim) {
         var data = turn.claim;
@@ -148,20 +149,31 @@ function getPunterName(punter) {
   return punter;
 }
 
-function drawScoreBoard() {
+function drawScoreBoard(draw_turn) {
+  
+  if (typeof(draw_turn) === undefined || !draw_turn) {
+    draw_turn = CURRENT_TURN;
+  }
 
-  if (SCORES[CURRENT_TURN]) {
+  if (SCORES[draw_turn]) {
     $("#scoreboard").empty();
-    for (var i in SCORES[CURRENT_TURN]) {
-      var info = SCORES[CURRENT_TURN][i];
+    for (var i in SCORES[draw_turn]) {
+      var info = SCORES[draw_turn][i];
       var row =
-          $("<div style='margin-left: 10px'>");
+          $("<span style='margin-left: 10px'>");
+
+      var playerName = $("<span class='player-name' />")
+        .text(getPunterName(info.punter));
+
+      var playerSwatch = $("<span class='player-swatch' />");
+      playerName.prepend(playerSwatch);
+      playerSwatch.css("background-color", colors[i]);
 
       row
-        .append(info.score + " - ");
+        .append(playerName);
 
       row
-        .append(getPunterName(info.punter));
+        .append(info.score);
 
 
       $("#scoreboard").append(row);
