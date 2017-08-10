@@ -1,38 +1,19 @@
-# credit: https://www.ics.uci.edu/~eppstein/PADS/UnionFind.py
+def set(x): return [x, 0]
 
-def new():
-    """Create a new empty union-find structure."""
-    forest = {}
-    forest['weights'] = {}
-    forest['parents'] = {}
-    return forest
-
-def make(forest, obj):
-    """Create 1-element set for the object."""
-    # check for previously unknown object
-    if obj not in forest['parents']:
-        forest['parents'][obj] = obj
-        forest['weights'][obj] = 1
-    return obj
-
-def find(forest, obj):
-    """Find and return the name of the set containing the object."""
-    # find path of objects leading to the root
-    path = [obj]
-    root = forest['parents'][obj]
-    while root != path[-1]:
-        path.append(root)
-        root = forest['parents'][root]
-    # compress the path and return
-    for ancestor in path:
-        forest['parents'][ancestor] = root
-    return root
-
-def union(forest, *objs):
-    """Find the sets containing the objects and merge them all."""
-    roots = [find(forest, x) for x in objs]
-    heaviest = max([(forest['weights'][r], r) for r in roots])[1]
-    for r in roots:
-        if r != heaviest:
-            forest['weights'][heaviest] += forest['weights'][r]
-            forest['parents'][r] = heaviest
+def union(x, y):
+    xroot = find(x)
+    yroot = find(y)
+    if xroot[1] > yroot[1]:
+        yroot[0] = xroot
+    elif xroot[1] < yroot[1]:
+        xroot[0] = yroot
+    elif xroot != yroot:
+        yroot[0] = xroot
+        xroot[1] += 1
+    
+def find(x):
+    if isinstance(x[0], int):
+        return x
+    else:
+        x[0] = find(x[0])
+        return x[0]

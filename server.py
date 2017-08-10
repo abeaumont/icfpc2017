@@ -9,7 +9,6 @@ import SocketServer
 GAME_PORT=9000
 
 import game
-from logger import *
 
 GAME = None
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
@@ -17,7 +16,6 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         pass
 
 class GameHandler(SocketServer.StreamRequestHandler):
-
     def _recv(self):
         s = ''
         c = self.rfile.read(1)
@@ -25,30 +23,30 @@ class GameHandler(SocketServer.StreamRequestHandler):
             s += c
             c = self.rfile.read(1)
         msg = self.rfile.read(int(s))
-        log('<<<' + msg)
+        print '<<<', msg
         return json.loads(msg)
 
     def _send(self, msg):
         msg = json.dumps(msg)
         msg = '{}:{}'.format(len(msg), msg)
-        log('>>>' + msg)
+        print '>>>', msg
         self.wfile.write(msg)
         self.wfile.flush()
 
     def handle(self):
-        log("RECEIVED NEW CLIENT")
+        print "RECEIVED NEW CLIENT"
 
 
         # the first thing every client does is identify
 
         try:
             client_id = self._recv()
-            log("CLIENT ID RECEIVED %s", client_id)
+            print "CLIENT ID RECEIVED", client_id
 
             if "me" in client_id:
                 player_id = client_id["me"]
                 self._send({ "you" : player_id })
-                log("PLAYER HANDSHAKE FINISHED %s", player_id)
+                print "PLAYER HANDSHAKE FINISHED", player_id
                 GAME.add_player(player_id, self)
             else:
                 print "INITIAL MSG DID NOT CONTAIN 'me' HANDSHAKE, EXITING REQUEST"
@@ -59,20 +57,19 @@ class GameHandler(SocketServer.StreamRequestHandler):
             print "CLIENT DID NOT ESTABLISH HANDSHAKE PROPERLY, EXITING REQUEST"
             return
 
-        self.running = True
-	while self.running:
+
+
+	while not DEAD:
             # TODO: sleep until our game is over
             time.sleep(0.5)
-        print "ENDING GAME FOR THREAD", self
 
 
 SERVER=None
 def serve_game(game_port, HandlerClass = GameHandler):
     global SERVER
     SocketServer.TCPServer.allow_reuse_address = True
-    HandlerClass.debug = False
     gamed = ThreadedTCPServer(("", game_port), HandlerClass)
-    print("Serving Game on", game_port)
+    print "Serving Game on", game_port
 
     SERVER = gamed
     SERVER.serve_forever()
@@ -87,38 +84,57 @@ def start():
     game_thread.daemon = True
     game_thread.start()
 
-
     return game_thread
 
+
+def webserve():
+    import SimpleHTTPServer
+    import SocketServer
+
+    PORT = 8000
+
+    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+
+    httpd = SocketServer.TCPServer(("", PORT), Handler)
+
+    print "Serving Viewer on port", PORT
+    httpd.serve_forever()
+
+
+def start_web_thread():
+    web_thread = threading.Thread(target=webserve)
+    web_thread.daemon = True
+    web_thread.start()
+
+
+DEAD = None
 def main():
     parser = argparse.ArgumentParser(description='Game Server.')
     parser.add_argument('-m', '--map', default='maps/circle.json', help='map to use')
     parser.add_argument('-n', type=int, default=2, help='number of players')
-    parser.add_argument('-d', '--debug', action='store_true', default=False, help='enable debug output')
-    parser.add_argument('-s', '--save', action='store_true', default=False, help='save game.json file')
     args = parser.parse_args()
-    if args.debug:
-        enable_logging()
-
     MAP = args.map
     PLAYERS = args.n
     global GAME
-    GAME = game.Game([MAP], PLAYERS, save=args.save)
+    GAME = game.Game([MAP], PLAYERS)
     t = start()
+
+    start_web_thread()
 
     while True:
         t.join(0.5)
 
-        if not t.isAlive():
+        if not t.isAlive() or DEAD:
             print "GAME SERVER DIED, EXITING"
+            sys.exit(0)
             break
 
 def signal_handler(signal, frame):
     print("Stopping the server")
-    for player in GAME.players.itervalues():
-        player.request.running = False
-
+    global DEAD
+    DEAD = True
     sys.exit(0)
+
 signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == "__main__":
