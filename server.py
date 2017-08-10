@@ -59,11 +59,9 @@ class GameHandler(SocketServer.StreamRequestHandler):
 
 
 
-        self.running = True
-	while self.running:
+	while not DEAD:
             # TODO: sleep until our game is over
             time.sleep(0.5)
-        print "ENDING GAME FOR THREAD", self
 
 
 SERVER=None
@@ -86,9 +84,9 @@ def start():
     game_thread.daemon = True
     game_thread.start()
 
-
     return game_thread
 
+DEAD = None
 def main():
     parser = argparse.ArgumentParser(description='Game Server.')
     parser.add_argument('-m', '--map', default='maps/circle.json', help='map to use')
@@ -103,16 +101,17 @@ def main():
     while True:
         t.join(0.5)
 
-        if not t.isAlive():
+        if not t.isAlive() or DEAD:
             print "GAME SERVER DIED, EXITING"
+            sys.exit(0)
             break
 
 def signal_handler(signal, frame):
     print("Stopping the server")
-    for player in GAME.players.itervalues():
-        player.request.running = False
-
+    global DEAD
+    DEAD = True
     sys.exit(0)
+
 signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == "__main__":

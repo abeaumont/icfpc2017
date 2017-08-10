@@ -74,6 +74,7 @@ class Game():
 
             if len(self.players) == self.num_players:
                 game_thread = threading.Thread(target=self.start)
+                game_thread.daemon = True
                 game_thread.start()
 
             return player
