@@ -123,8 +123,8 @@ class Punter(object):
     def pass_(self):
         return {'pass': {'punter': self.punter}}
 
-    def log(self, message, *args):
-        print >>self.fd, "[%s] %s" % (self.name, (message % map(str, args)))
+    def log(self, *message):
+        print >>self.fd, "[%s] %s" % (self.name, " ".join(map(str, message)))
 
     def calc_distances_for_mine(self, m):
         seen, todo = { m: 0 }, deque([(m, 0)])
@@ -154,7 +154,7 @@ class Punter(object):
                 max_score = max(scores.values())
                 if self.punter in scores:
                     our_score = (scores[self.punter])
-                    self.log("OUR SCORE IS %s" % our_score)
+                    self.log("OUR SCORE IS", our_score)
                     if our_score == max_score:
                         self.log("WE ARE WINNER! (OR TYING)")
 
@@ -231,7 +231,7 @@ class Interface(object):
     def _send(self, msg):
         msg = json.dumps(msg)
         msg = '{}:{}'.format(len(msg), msg)
-        self.log('sending message: %s', msg)
+        self.log('sending message:', msg)
         self.server.write(msg)
         self.server.flush()
 
@@ -242,20 +242,20 @@ class Interface(object):
             s += c
             c = self.server.read(1)
         line = self.server.read(int(s))
-        self.log('receiving message: %s', line)
+        self.log('receiving message:', line)
         if not line:
             raise EOFError()
         return json.loads(line)
 
-    def log(self, message, *args):
-        print >>sys.stderr, "[%s] %s" % (self.name, (message % map(str, args)))
+    def log(self, *message):
+        print >>sys.stderr, "[%s] %s" % (self.name, " ".join(map(str, message)))
 
     def run(self):
         self._send({'me': self.name})
         self._recv()
         init = self._recv()
 
-        self.log("init: %s", str(init))
+        self.log("init:", init)
 
         self.punter = self.punter_class(self.name, init)
 
@@ -291,7 +291,7 @@ class OfflineInterface(object):
     def _send(self, msg):
         msg = json.dumps(msg)
         msg = '{}:{}'.format(len(msg), msg)
-        self.log('sending message: %s', msg)
+        self.log('sending message:', msg)
         sys.stdout.write(msg)
         sys.stdout.flush()
 
@@ -302,13 +302,13 @@ class OfflineInterface(object):
             s += c
             c = sys.stdin.read(1)
         line = sys.stdin.read(int(s))
-        self.log('receiving message: %s', line)
+        self.log('receiving message:', line)
         if not line:
             raise EOFError()
         try:
             return json.loads(line)
         except e:
-            self.log('error: %s', str(e))
+            self.log('error:', str(e))
 
     def log(self, message, *args):
         print >>self.fd, "[%s] %s" % (self.name, (message % map(str, args)))
@@ -341,7 +341,7 @@ class OfflineInterface(object):
                     msg['futures'] = self.punter.futures()
                 self._send(msg)
             except:
-                self.log('error: %s', traceback.format_exc())
+                self.log('error:', traceback.format_exc())
         elif 'move' in msg:
             try:
                 offline_init(msg['state'])
@@ -350,14 +350,14 @@ class OfflineInterface(object):
                 msg['state'] = self.punter.get_state()
                 self._send(msg)
             except:
-                self.log('error: %s', traceback.format_exc())
+                self.log('error:', traceback.format_exc())
         elif 'stop' in msg:
             try:
                 offline_init(msg['state'])
                 self.punter.upkeep_punter(msg)
                 self.punter.stop(msg)
             except:
-                self.log('error: %s', traceback.format_exc())
+                self.log('error:', traceback.format_exc())
 
         self.fd.close()
 
