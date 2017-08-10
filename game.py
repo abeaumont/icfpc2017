@@ -67,9 +67,8 @@ class Game():
             player.id = pid
             player.request = player_request
             self.players[pid] = player
-            print "BEFORE:", len(self.players), "PLAYERS IN THE GAME"
             print "ADDING PLAYER", player, player.id, player.name
-            print "NOW THEY are", self.players, len(self.players), "PLAYERS IN THE GAME"
+            print "NOW THERE ARE", self.players, len(self.players), "PLAYERS IN THE GAME"
 
 
             if len(self.players) == self.num_players:
