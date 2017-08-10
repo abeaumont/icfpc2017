@@ -69,7 +69,7 @@ def serve_game(game_port, HandlerClass = GameHandler):
     global SERVER
     SocketServer.TCPServer.allow_reuse_address = True
     gamed = ThreadedTCPServer(("", game_port), HandlerClass)
-    print("Serving Game on", game_port)
+    print "Serving Game on", game_port
 
     SERVER = gamed
     SERVER.serve_forever()
@@ -86,6 +86,27 @@ def start():
 
     return game_thread
 
+
+def webserve():
+    import SimpleHTTPServer
+    import SocketServer
+
+    PORT = 8000
+
+    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+
+    httpd = SocketServer.TCPServer(("", PORT), Handler)
+
+    print "Serving Viewer on port", PORT
+    httpd.serve_forever()
+
+
+def start_web_thread():
+    web_thread = threading.Thread(target=webserve)
+    web_thread.daemon = True
+    web_thread.start()
+
+
 DEAD = None
 def main():
     parser = argparse.ArgumentParser(description='Game Server.')
@@ -97,6 +118,8 @@ def main():
     global GAME
     GAME = game.Game([MAP], PLAYERS)
     t = start()
+
+    start_web_thread()
 
     while True:
         t.join(0.5)
