@@ -53,7 +53,6 @@ class GreedyPunter(interface.Punter):
             s = unionfind.find(self.sets[m])
             subgraphs.add(s[0])
 
-        self.log("SUBGRAPHS ARE %s" % (repr(subgraphs)))
         mines = []
         for m in self.mines:
             if m in self.own_mines: continue
@@ -91,14 +90,14 @@ class GreedyPunter(interface.Punter):
                     try:
                         d = nx.shortest_path_length(g, e1s, s)
                         d1 = min(d, d1)
-                    except:
+                    except Exception, e:
                         pass
                 for s in subgraphs:
                     if e2m == s: continue
                     try:
                         d = nx.shortest_path_length(g, e2s, s)
                         d2 = min(d, d2)
-                    except:
+                    except Exception, e:
                         pass
                 return d1 - d2
 
@@ -154,13 +153,15 @@ class GreedyPunter(interface.Punter):
                                     src = i
                                 elif dst is None:
                                     dst = i
-                        #print '{} -> {}: {} {}({}-{})'.format(s, sg, d, p, src, dst)
-                        if d < mind:
+                        # self.log('{} -> {}: {} {}({}-{})'.format(s, sg, d, p, src, dst))
+                        if d < mind and src and dst:
                             mind = d
                             if (src, dst) in self.available_rivers:
                                 next = (src, dst)
+                                mind = d
                             elif (dst, src) in self.available_rivers:
                                 next = (dst, src)
+                                mind = d
                     except:
                         pass
             for sg in subgraphs:
@@ -180,13 +181,14 @@ class GreedyPunter(interface.Punter):
                                     src = i
                                 elif dst is None:
                                     dst = i
-                        #print '{} -> {}: {} {}({}-{})'.format(t, sg, d, p, src, dst)
-                        if d < mind:
-                            mind = d
+                        # self.log('{} -> {}: {} {}({}-{})'.format(t, sg, d, p, src, dst))
+                        if d < mind and src and dst:
                             if (src, dst) in self.available_rivers:
                                 next = (src, dst)
+                                mind = d
                             elif (dst, src) in self.available_rivers:
                                 next = (dst, src)
+                                mind = d
                     except:
                         pass
         if next and next[0] != None:

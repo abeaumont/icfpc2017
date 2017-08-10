@@ -311,7 +311,7 @@ class OfflineInterface(object):
             self.log('error:', str(e))
 
     def log(self, message, *args):
-        print >>self.fd, "[%s] %s" % (self.name, (message % map(str, args)))
+        print >>self.fd, "[%s] %s" % (self.name, " ".join(map(str, args)))
 
     def run(self):
         self._send({'me': self.name})
