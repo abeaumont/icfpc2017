@@ -1,0 +1,16 @@
+(jbuild_version 1)
+
+(rule
+ ((targets (online_j.ml online_j.mli))
+  (deps    (online.atd))
+  (action  (run atdgen -j-std -j ${<}))))
+
+(rule
+ ((targets (online_t.ml online_t.mli))
+  (deps    (online.atd))
+  (action  (run atdgen -j-std -t ${<}))))
+
+(executable
+  ((name online)
+   (libraries (yojson atdgen))
+   (modules (online online_t online_j))))

@@ -1,0 +1,70 @@
+(* Base types *)
+type punter_id = int
+type site_id = int
+
+(* Handshake messages *)
+type handshake_punter_server = { you: string }
+type handshake_server_punter = { me: string }
+
+(* Setup messages *)
+type site = { id: site_id }
+type river = { source: site_id; target: site_id }
+
+type map = {
+  sites: site;
+  rivers: river;
+  mines: site_id;
+}
+type setup_server_punter = {
+  punter: punter_id;
+  punters: int;
+  map: map
+}
+
+type setup_punter_server = { ready: punter_id }
+
+(* Gameplay messages *)
+type claim = {
+  punter: punter_id;
+  source: site_id;
+  target: site_id
+}
+
+type pass = { punter: punter_id }
+
+type move = [
+  | Claim of claim
+  | Pass of pass
+]
+
+type moves = { moves: move list }
+
+type gameplay_server_punter = { move: moves }
+type gameplay_punter_server = move
+
+(* Scoring messages *)
+type score = {
+  punter: punter_id;
+  score: int
+}
+
+type stop = {
+  moves : moves list;
+  scores: score list
+}
+
+type scoring_server_punter = { stop: stop }
+
+(* Messages *)
+type message_punter_server = [
+  | Handshake of handshake_punter_server
+  | Setup of setup_punter_server
+  | Gameplay of gameplay_punter_server
+]
+
+type message_server_punter = [
+  | Handshake of handshake_server_punter
+  | Setup of setup_server_punter
+  | Gameplay of gameplay_server_punter
+  | Scoring of scoring_server_punter
+]
