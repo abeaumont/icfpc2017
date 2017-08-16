@@ -12,5 +12,5 @@
 
 (executable
   ((name online)
-   (libraries (yojson atdgen))
-   (modules (online online_t online_j))))
+   (libraries (unix yojson atdgen))
+   (modules (online online_t online_j punter))))
